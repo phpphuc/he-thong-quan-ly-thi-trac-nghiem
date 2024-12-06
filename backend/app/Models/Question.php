@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -8,21 +9,23 @@ class Question extends Model
 {
     use HasFactory;
 
+    protected $table = 'questions';
+    protected $primaryKey = 'questionid';
+
     protected $fillable = [
-        'examid',
-        'examname',
         'subjectid',
         'teacherid',
-        'time',
-        'examtype',
-        'Qtype1',
-        'Qtype2',
-        'Qtype3',
-        'Qnumber',
+        'question',
+        'level',
+        'rightanswer',
+        'answer_a',
+        'answer_b',
+        'answer_c',
+        'answer_d',
     ];
 
-    public function questions()
+    public function teacher()
     {
-        return $this->hasMany(Question::class, 'examid');
+        return $this->belongsTo(Teacher::class, 'teacherid', 'Teacherid');
     }
 }
