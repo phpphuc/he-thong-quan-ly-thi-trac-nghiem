@@ -9,9 +9,9 @@ class CreateQuestionsTable extends Migration
     public function up()
     {
         Schema::create('questions', function (Blueprint $table) {
-            $table->id('questionid');
-            $table->string('subjectid');
-            $table->unsignedBigInteger('teacherid');
+            $table->id();
+            $table->string('subject_id');
+            $table->unsignedBigInteger('teacher_id');
             $table->text('question');
             $table->enum('level', ['EASY', 'NORMAL', 'HARD']);
             $table->string('rightanswer');
@@ -20,8 +20,8 @@ class CreateQuestionsTable extends Migration
             $table->string('answer_c');
             $table->string('answer_d');
             $table->timestamps();
-            
-            $table->foreign('teacherid')->references('Teacherid')->on('teachers')->onDelete('cascade');
+
+            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade');
         });
     }
 
