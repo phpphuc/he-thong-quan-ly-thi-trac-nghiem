@@ -12,13 +12,13 @@ class QuestionController extends Controller
     {
         return Question::all();
     }
-// Thêm mới câu hỏi
+    // Thêm mới câu hỏi
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'questionid' => 'required|integer|unique:questions,questionid',
-            'subjectid' => 'required|string',
-            'teacherid' => 'required|integer',
+            'question_id' => 'required|integer|unique:questions,question_id',
+            'subject_id' => 'required|string',
+            'teacher_id' => 'required|integer',
             'question' => 'required|string',
             'level' => 'required|string|in:EASY,NORMAL,HARD',
             'rightanswer' => 'required|string',
@@ -34,41 +34,40 @@ class QuestionController extends Controller
     }
     //cập nhật câu hỏi
     public function update(Request $request, $id)
-{
-    $question = Question::find($id);
+    {
+        $question = Question::find($id);
 
-    if (!$question) {
-        return response()->json(['message' => 'Question not found'], 404);
+        if (!$question) {
+            return response()->json(['message' => 'Question not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'subject_id' => 'sometimes|string',
+            'teacher_id' => 'sometimes|integer',
+            'question' => 'sometimes|string',
+            'level' => 'sometimes|string|in:EASY,NORMAL,HARD',
+            'rightanswer' => 'sometimes|string',
+            'answer_a' => 'sometimes|string',
+            'answer_b' => 'sometimes|string',
+            'answer_c' => 'sometimes|string',
+            'answer_d' => 'sometimes|string',
+        ]);
+
+        $question->update($validated);
+
+        return response()->json(['message' => 'Question updated successfully', 'data' => $question], 200);
     }
+    //xóa câu hỏi
+    public function destroy($id)
+    {
+        $question = Question::find($id);
 
-    $validated = $request->validate([
-        'subjectid' => 'sometimes|string',
-        'teacherid' => 'sometimes|integer',
-        'question' => 'sometimes|string',
-        'level' => 'sometimes|string|in:EASY,NORMAL,HARD',
-        'rightanswer' => 'sometimes|string',
-        'answer_a' => 'sometimes|string',
-        'answer_b' => 'sometimes|string',
-        'answer_c' => 'sometimes|string',
-        'answer_d' => 'sometimes|string',
-    ]);
+        if (!$question) {
+            return response()->json(['message' => 'Question not found'], 404);
+        }
 
-    $question->update($validated);
+        $question->delete();
 
-    return response()->json(['message' => 'Question updated successfully', 'data' => $question], 200);
-}
-//xóa câu hỏi
-public function destroy($id)
-{
-    $question = Question::find($id);
-
-    if (!$question) {
-        return response()->json(['message' => 'Question not found'], 404);
+        return response()->json(['message' => 'Question deleted successfully'], 200);
     }
-
-    $question->delete();
-
-    return response()->json(['message' => 'Question deleted successfully'], 200);
-}
-
 }

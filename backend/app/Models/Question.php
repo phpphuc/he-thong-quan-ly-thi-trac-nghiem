@@ -10,11 +10,11 @@ class Question extends Model
     use HasFactory;
 
     protected $table = 'questions';
-    protected $primaryKey = 'questionid';
+    protected $primaryKey = 'question_id';
 
     protected $fillable = [
-        'subjectid',
-        'teacherid',
+        'subject_id',
+        'teacher_id',
         'question',
         'level',
         'rightanswer',
@@ -26,6 +26,6 @@ class Question extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacherid', 'Teacherid');
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
     }
 }
