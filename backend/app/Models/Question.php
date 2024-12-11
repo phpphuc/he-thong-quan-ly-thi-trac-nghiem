@@ -13,6 +13,7 @@ class Question extends Model
     protected $primaryKey = 'question_id';
 
     protected $fillable = [
+        'question_id',
         'subject_id',
         'teacher_id',
         'question',
