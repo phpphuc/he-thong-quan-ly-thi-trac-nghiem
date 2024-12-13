@@ -9,14 +9,9 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $table = 'subjects'; 
-    protected $primaryKey = 'subject_id'; 
-
     protected $fillable = [
-        'subject_id',
         'name',
     ];
-   
 
     public function questions()
     {
@@ -26,5 +21,4 @@ class Subject extends Model
     {
         return $this->hasMany(Classroom::class, 'subject_id', 'subject_id');
     }
-
 }
