@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Subject;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,9 +17,42 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
+
+        $users = file_get_contents(base_path('/database/fakedata/users.json'));
+        // $users = json_decode($users);
+        $users = json_decode($users, true); // Thêm `true` để trả về mảng
+        foreach ($users as $user) {
+            $user['password'] = Hash::make('123456');
+            $createdUser = User::create($user);
+
+            if ($createdUser->role == 'TEACHER') {
+                $createdUser->teacher()->create();
+            } else if ($createdUser->role == 'STUDENT') {
+                $createdUser->student()->create();
+            }
+        }
+
+        $subjects = [
+            [
+                "name" => "Anh văn 1",
+            ],
+            [
+                "name" => "Anh văn 2",
+            ]
+        ];
+        foreach ($subjects as $subject) {
+            Subject::create($subject);
+        }
+
+        $questions = file_get_contents(base_path('/database/fakedata/questions.json'));
+        $questions = json_decode($questions, true);
+        foreach ($questions as $question) {
+            \App\Models\Question::create($question);
+        }
     }
 }
