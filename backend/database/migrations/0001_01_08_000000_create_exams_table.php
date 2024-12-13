@@ -23,7 +23,6 @@ return new class extends Migration
             $table->integer('Qtype2');
             $table->integer('Qtype3');
             $table->integer('Qnumber');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
