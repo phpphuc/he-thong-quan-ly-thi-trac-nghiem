@@ -13,6 +13,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthController extends Controller
 {
+    public function index()
+    {
+        return User::all();
+    }
 
     // Temporary code for development purposes
     public function register(Request $request)
@@ -21,14 +25,24 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'birth_date' => $request->birth_date,
         ]);
+
+        if ($request->role == 'TEACHER') {
+            $user->teacher()->create();
+        } else if ($request->role == 'STUDENT') {
+            $user->student()->create();
+        }
 
         $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json([
             'status' => 'success',
             'token' => $token,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
