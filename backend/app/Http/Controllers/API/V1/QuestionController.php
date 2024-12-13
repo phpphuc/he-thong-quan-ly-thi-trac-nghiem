@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Http\Controllers\API\V1\Controller;
 
 class QuestionController extends Controller
 {
@@ -16,7 +17,6 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'question_id' => 'required|integer|unique:questions,question_id',
             'subject_id' => 'required|string',
             'teacher_id' => 'required|integer',
             'question' => 'required|string',
