@@ -8,17 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Teacher extends Model
 {
     use HasFactory;
-    protected $table = 'teachers'; 
-    protected $primaryKey = 'teacher_id';
 
     protected $fillable = [
-        'teacher_id',
         'user_id',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function subjects()
