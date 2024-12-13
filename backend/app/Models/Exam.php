@@ -9,11 +9,9 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $table = 'exams'; 
-    protected $primaryKey = 'exam_id'; 
 
     protected $fillable = [
-        'exam_id',
+
         'name',
         'subject_id',
         'teacher_id',
@@ -36,6 +34,8 @@ class Exam extends Model
     {
         return $this->hasMany(Result::class, 'exam_id', 'exam_id');
     }
-  
-
+    public function questions()
+    {
+        return $this->belongsToMany(Question::class, 'exam_question', 'exam_id', 'question_id');
+    }
 }
