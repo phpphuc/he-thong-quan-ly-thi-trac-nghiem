@@ -6,6 +6,7 @@ use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\SubjectController;
 use App\Http\Controllers\API\V1\ExamController;
 use App\Http\Controllers\API\V1\ResultController;
+use App\Http\Controllers\API\V1\SchoolBoardController;
 Route::prefix('v1')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -39,6 +40,17 @@ Route::prefix('v1')->group(function () {
     Route::put('/results/{id}', [ResultController::class, 'update']);
     Route::get('/results/student/{studentId}', [ResultController::class, 'studentHistory']);
     Route::get('/results/exam/{examId}/report', [ResultController::class, 'examReport']);
+
+    
+    Route::get('/schoolboards', [SchoolBoardController::class, 'index']);
+    Route::get('/schoolboards/{id}', [SchoolBoardController::class, 'show']);
+    Route::post('/schoolboards', [SchoolBoardController::class, 'store']);
+    Route::put('/schoolboards/{id}', [SchoolBoardController::class, 'update']);
+    Route::delete('/schoolboards/{id}', [SchoolBoardController::class, 'destroy']);
+    Route::post('/schoolboards/exams', [SchoolBoardController::class, 'createExam']);
+    Route::get('/schoolboards/exams', [SchoolBoardController::class, 'exams']);
+    Route::get('/schoolboards/exams/{examId}/report', [SchoolBoardController::class, 'examReport']);
+
 
    
 
