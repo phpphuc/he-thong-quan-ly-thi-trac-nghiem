@@ -47,6 +47,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/schoolboards', [SchoolBoardController::class, 'store']);
     Route::put('/schoolboards/{id}', [SchoolBoardController::class, 'update']);
     Route::delete('/schoolboards/{id}', [SchoolBoardController::class, 'destroy']);
+    Route::post('/schoolboards/exams', [SchoolBoardController::class, 'createExam']);
+    Route::get('/schoolboards/exams', [SchoolBoardController::class, 'exams']);
+    Route::get('/schoolboards/exams/{examId}/report', [SchoolBoardController::class, 'examReport']);
 
 
 
