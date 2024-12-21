@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
 use App\Models\Result;
@@ -9,7 +9,7 @@ use App\Models\Student;
 
 class ResultController extends Controller
 {
-   // Hiển thị danh sách kết quả thi.
+    // Hiển thị danh sách kết quả thi.
     public function index()
     {
         $results = Result::with('exam', 'student')->get();
@@ -103,5 +103,5 @@ class ResultController extends Controller
             'lowest_score' => $lowestScore,
             'results' => $results
         ]);
-    } 
+    }
 }
