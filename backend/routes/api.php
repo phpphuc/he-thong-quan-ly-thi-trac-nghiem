@@ -7,6 +7,7 @@ use App\Http\Controllers\API\V1\SubjectController;
 use App\Http\Controllers\API\V1\ExamController;
 use App\Http\Controllers\API\V1\ResultController;
 use App\Http\Controllers\API\V1\SchoolBoardController;
+use App\Http\Controllers\API\V1\ExamQuestionController;
 Route::prefix('v1')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -50,6 +51,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/schoolboards/exams', [SchoolBoardController::class, 'createExam']);
     Route::get('/schoolboards/exams', [SchoolBoardController::class, 'exams']);
     Route::get('/schoolboards/exams/{examId}/report', [SchoolBoardController::class, 'examReport']);
+
+    
+    Route::post('/exam/{examid}/attach-questions', [ExamQuestionController::class, 'attachQuestions']);
+    Route::get('/exam/{examid}/questions', [ExamQuestionController::class, 'showQuestions']);
+    Route::post('/exam/{examid}/detach-questions', [ExamQuestionController::class, 'detachQuestions']);
 
 
 
