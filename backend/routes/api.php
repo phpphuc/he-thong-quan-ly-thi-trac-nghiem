@@ -21,6 +21,7 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/register', [App\Http\Controllers\API\V1\AuthController::class, 'register']);
     Route::post('/login', [App\Http\Controllers\API\V1\AuthController::class, 'login']);
+    Route::post('/logout', [AuthenticationController::class, 'logout'])->middleware('auth:sanctum');
 
 
     Route::get('questions', [QuestionController::class, 'index']);
