@@ -12,6 +12,8 @@ use App\Http\Controllers\API\V1\ClassController;
 use App\Http\Controllers\API\V1\SubjectController;
 use App\Http\Controllers\API\V1\ClassStudentController;
 use App\Http\Controllers\API\V1\TeacherController;
+use App\Http\Controllers\API\V1\StudentController;
+
 Route::prefix('v1')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -87,6 +89,14 @@ Route::prefix('v1')->group(function () {
     Route::post('/teachers/assign-to-class', [TeacherController::class, 'assignToClass']); 
     Route::post('/teachers/assign-to-subject', [TeacherController::class, 'assignToSubject']);
     Route::post('/teachers/organize-exam', [TeacherController::class, 'organizeExam']);
+
+    Route::get('/students', [StudentController::class, 'index']); 
+    Route::post('/students', [StudentController::class, 'store']); 
+    Route::get('/students/{id}', [StudentController::class, 'show']); 
+    Route::put('/students/{id}', [StudentController::class, 'update']); 
+    Route::delete('/students/{id}', [StudentController::class, 'destroy']); 
+    Route::post('/students/add-to-class', [StudentController::class, 'addToClass']); 
+    Route::get('/students/{studentId}/exam-history', [StudentController::class, 'examHistory']);
 
 
 
