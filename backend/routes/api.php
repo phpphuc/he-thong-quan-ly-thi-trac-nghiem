@@ -53,9 +53,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/schoolboards/exams/{examId}/report', [SchoolBoardController::class, 'examReport']);
 
     
-    Route::post('/exam/{examid}/attach-questions', [ExamQuestionController::class, 'attachQuestions']);
-    Route::get('/exam/{examid}/questions', [ExamQuestionController::class, 'showQuestions']);
-    Route::post('/exam/{examid}/detach-questions', [ExamQuestionController::class, 'detachQuestions']);
+    Route::post('/exam/{exam_id}/attach-questions', [ExamQuestionController::class, 'attachQuestions']);
+    Route::get('/exam/{exam_id}/questions', [ExamQuestionController::class, 'showQuestions']);
+    Route::post('/exam/{exam_id}/detach-questions', [ExamQuestionController::class, 'detachQuestions']);
 
 
 
