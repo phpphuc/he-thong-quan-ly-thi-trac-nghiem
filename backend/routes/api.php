@@ -9,7 +9,6 @@ use App\Http\Controllers\API\V1\ResultController;
 use App\Http\Controllers\API\V1\SchoolBoardController;
 use App\Http\Controllers\API\V1\ExamQuestionController;
 use App\Http\Controllers\API\V1\ClassController;
-use App\Http\Controllers\API\V1\SubjectController;
 use App\Http\Controllers\API\V1\ClassStudentController;
 use App\Http\Controllers\API\V1\TeacherController;
 use App\Http\Controllers\API\V1\StudentController;
