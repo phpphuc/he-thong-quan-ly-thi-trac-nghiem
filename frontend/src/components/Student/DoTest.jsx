@@ -20,7 +20,7 @@ const DoTest = () => {
       </div>
       
       {/* Nội dung bài thi */}
-      <div className="overflow-x-auto max-h-[550px] bg-white rounded-2xl">
+      <div className="overflow-x-auto max-h-[500px] bg-white rounded-2xl">
         <div className="px-12 py-6">
           {/* Các câu hỏi và câu trả lời */}
           <div className="mb-6">
