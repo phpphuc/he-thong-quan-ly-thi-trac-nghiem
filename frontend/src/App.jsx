@@ -1,11 +1,11 @@
 import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthContext";
 import Login from "./components/pages/LoginPage/Login";
 import NotFound from "./components/pages/NotFoundPage/NotFound";
 
 import StudentPage from "./components/pages/StudentPage/StudentPage";
 import Test from "./components/pages/StudentPage/Test";
 import LookUp from "./components/pages/StudentPage/LookUp";
-import { AuthProvider } from "./components/auth/AuthContext";
 
 function App() {
   return (
@@ -26,7 +26,7 @@ function App() {
 
         {/* More routing here ...*/}
 
-        <Route path="*" element={<NotFound />}></Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );
