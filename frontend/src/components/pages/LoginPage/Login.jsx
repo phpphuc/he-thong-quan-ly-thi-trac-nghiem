@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { TextField } from "@mui/material";
+import { useAuth } from "../../auth/AuthContext";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (event) => {
     event.preventDefault(); // Ngăn reload trang khi submit form
@@ -18,14 +22,20 @@ const LoginPage = () => {
         email,
         password,
       });
-
       // Xử lý thành công
-      console.log("Login successful:", response.data);
-      alert("Login successful!");
+      login(response.data.data);
+      // Điều hướng trang theo role tương ứng
+      if (response.data.data.type === "users") {
+        navigate("/sinhvien");
+      } else if (response.data.data.type === "teacher") {
+        navigate("/giaovien");
+      } else if (response.data.data.type === "schoolboard") {
+        navigate("/bgh");
+      }
     } catch (err) {
       // Xử lý lỗi
       console.error("Login failed:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Something went wrong.");
+      setError(err.response?.data?.message || "Wrong email or password!");
     } finally {
       setLoading(false);
     }
@@ -89,10 +99,7 @@ const LoginPage = () => {
           {/* Forgot Password */}
           <div className="text-center text-sm text-gray-600">
             Forgot Your Password?{" "}
-            <button
-              type="button"
-              className="text-blue-500 hover:text-blue-600"
-            >
+            <button type="button" className="text-blue-500 hover:text-blue-600">
               Reset
             </button>
           </div>

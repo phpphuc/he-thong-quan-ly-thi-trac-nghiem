@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useContext } from "react";
 import PropTypes from "prop-types";
 
 const AuthContext = createContext();
@@ -7,16 +7,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [studentCurrentView, setStudentCurrentView] = useState("baithi");
 
-  useEffect(() => {
-    // handle API return from backend
-  }, []);
-
-  const login = (userData, token) => {
-    // handle login
+  const login = (user) => {
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
   };
 
   const logout = () => {
-    // handle logout
+    setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (

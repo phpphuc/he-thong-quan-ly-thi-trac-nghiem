@@ -1,7 +1,20 @@
+import { useState } from "react";
+import { FaCaretDown, FaUserEdit, FaSignOutAlt } from "react-icons/fa";
+import { useAuth } from "../auth/AuthContext";
+import { useNavigate, Navigate, replace } from "react-router-dom";
+
 const Header = ({ isSidebarOpen, setSidebarOpen }) => {
+  const { user, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div>
-      {/* Search Bar */}
       <div className="flex items-center justify-between py-4 bg-white">
         <button
           onClick={() => setSidebarOpen(!isSidebarOpen)}
@@ -64,7 +77,7 @@ const Header = ({ isSidebarOpen, setSidebarOpen }) => {
               />
             </svg>
           </div>
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center relative">
             <div className="mr-2">
               <img
                 src="https://i.pinimg.com/736x/74/f4/f5/74f4f548392fbdafbe8a5d9764c83eaf.jpg"
@@ -72,9 +85,43 @@ const Header = ({ isSidebarOpen, setSidebarOpen }) => {
                 className="w-10 h-10 rounded-full"
               />
             </div>
-            <div className="mr-6">
-              <p className="font-nunito font-bold">Minh Thanh</p>
-              <p className="font-nunito font-light">Student</p>
+            <div className="mr-4">
+              <p className="font-nunito font-bold">{user?.attributes.name}</p>
+              <p className="font-nunito font-light">{user?.type}</p>
+            </div>
+            <div
+              className="mr-4 cursor-pointer"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <FaCaretDown
+                size={24}
+                className={`transform transition-transform duration-200 ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+
+            {/* Dropdown Menu */}
+            <div
+              className={`absolute right-4 top-full mt-2 w-48 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200 ease-in-out ${
+                isDropdownOpen
+                  ? "transform opacity-100 scale-100"
+                  : "transform opacity-0 scale-95 pointer-events-none"
+              }`}
+            >
+              <div className="py-1">
+                <button className="w-full px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition-colors">
+                  <FaUserEdit className="text-gray-500" />
+                  <span>Cập nhật thông tin</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-2 text-red-600 hover:bg-gray-100 flex items-center gap-2 transition-colors"
+                >
+                  <FaSignOutAlt className="text-red-500" />
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

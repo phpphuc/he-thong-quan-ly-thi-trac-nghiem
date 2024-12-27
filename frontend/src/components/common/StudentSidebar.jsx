@@ -25,7 +25,7 @@ const StudentSidebar = ({ isSidebarOpen }) => {
               setStudentCurrentView("baithi");
               navigate("/sinhvien");
             }}
-            className={`block w-full mb-4 ${
+            className={`block w-full mb-6 ${
               studentCurrentView === "baithi"
                 ? "text-blue-500"
                 : "text-gray-600"

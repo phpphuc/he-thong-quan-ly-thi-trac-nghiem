@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Login from "./components/pages/LoginPage/Login";
 import NotFound from "./components/pages/NotFoundPage/NotFound";
 
@@ -16,11 +17,13 @@ function App() {
         <Route
           path="/sinhvien/*"
           element={
-            <Routes>
-              <Route path="/" element={<StudentPage />} />
-              <Route path="baithi/:id" element={<Test />} />
-              <Route path="tracuu/:id" element={<LookUp />} />
-            </Routes>
+            <ProtectedRoute>
+              <Routes>
+                <Route path="/" element={<StudentPage />} />
+                <Route path="baithi/:id" element={<Test />} />
+                <Route path="tracuu/:id" element={<LookUp />} />
+              </Routes>
+            </ProtectedRoute>
           }
         />
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DoTest from "../../Student/DoTest";
+import DoTest from "../../StudentCore/DoTest";
 import Header from "../../common/Header";
 import StudentSidebar from "../../common/StudentSidebar";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import TestList from "../../Student/TestList";
-import TestHistory from "../../Student/TestHistory";
+import TestList from "../../StudentCore/TestList";
+import TestHistory from "../../StudentCore/TestHistory";
 import StudentSidebar from "../../common/StudentSidebar";
 import Header from "../../common/Header";
 import { useAuth } from "../../auth/AuthContext";

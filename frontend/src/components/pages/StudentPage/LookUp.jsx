@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LookUpDetails from "../../Student/LookUpDetails";
+import LookUpDetails from "../../StudentCore/LookUpDetails";
 import Header from "../../common/Header";
 import StudentSidebar from "../../common/StudentSidebar";
 
