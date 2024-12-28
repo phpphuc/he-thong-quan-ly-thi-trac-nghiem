@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
@@ -7,23 +8,31 @@ import { useNavigate } from "react-router-dom";
 const TestHistory = () => {
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
-  const filterRef = useRef(null);
-  const typeRef = useRef(null);
+  const [data, setData] = useState([]);
   const navigate = useNavigate();
 
-  // Hàm xử lý thay đổi giá trị filter
+  useEffect(() => {
+    // Fetch test history from API
+    const fetchTestHistory = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/v1/results/student/{studentId}");
+        setData(response.data); // Assumes response is an array of test history objects
+      } catch (error) {
+        console.error("Error fetching test history:", error);
+      }
+    };
+
+    fetchTestHistory();
+  }, []);
+
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
-    filterRef.current.blur();
   };
 
-  // Hàm xử lý thay đổi giá trị type
   const handleChangeType = (e) => {
     setTypeValue(e.target.value);
-    typeRef.current.blur();
   };
 
-  // Hàm reset các select về giá trị mặc định
   const handleReset = () => {
     setFilterValue("default");
     setTypeValue("default");
@@ -33,43 +42,16 @@ const TestHistory = () => {
     navigate(`/sinhvien/tracuu/${testId}`);
   };
 
-  const data = [
-    {
-      id: "00001",
-      test_name: "IT005.212",
-      subject: "OOP",
-      create_at: "01 November 2023",
-      type: "Tập trung",
-    },
-    {
-      id: "00002",
-      test_name: "IT005.199",
-      subject: "OOP",
-      create_at: "01 December 2023",
-      type: "Thi riêng",
-    },
-    {
-      id: "00003",
-      test_name: "IT002.333",
-      subject: "OOP",
-      create_at: "01 November 2024",
-      type: "Tập trung",
-    },
-  ];
-
   return (
     <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
-      {/* Tiêu đề */}
       <h1 className="text-2xl font-bold mb-4">Lịch sử bài thi đã làm</h1>
 
-      {/* Khu vực lọc */}
       <div className="flex items-center my-5">
         <div className="flex items-center space-x-4">
           <CiFilter size={24} />
           <span className="font-medium">Lọc theo</span>
           <select
             value={filterValue}
-            ref={filterRef}
             onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
@@ -80,7 +62,6 @@ const TestHistory = () => {
           </select>
           <select
             value={typeValue}
-            ref={typeRef}
             onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
@@ -98,7 +79,6 @@ const TestHistory = () => {
         </div>
       </div>
 
-      {/* Bảng danh sách bài thi */}
       <div className="overflow-x-auto min-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
           <thead>
@@ -133,9 +113,8 @@ const TestHistory = () => {
         </table>
       </div>
 
-      {/* Khu vực phân trang */}
       <div className="flex items-center justify-between mt-4">
-        <div>Hiển thị 01-09 trong số 30</div>
+        <div>Hiển thị 01-09 trong số {data.length}</div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
             <MdKeyboardArrowLeft />

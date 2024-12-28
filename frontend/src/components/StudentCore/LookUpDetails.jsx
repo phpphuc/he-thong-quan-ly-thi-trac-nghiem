@@ -1,169 +1,49 @@
-import { useState } from "react";
-import { MdOutlineReport } from "react-icons/md";
-import ModalQuestionReport from "./ModalQuestionReport";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
-const DoTest = () => {
-  const [showModal, setShowModal] = useState(false);
+const LookUpDetails = () => {
+  const { testId } = useParams();
+  const [testDetails, setTestDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleReportClick = () => {
-    setShowModal(true);
-  };
+  useEffect(() => {
+    // Fetch test details from API
+    const fetchTestDetails = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/v1/results/${testId}`);
+        setTestDetails(response.data);
+      } catch (error) {
+        console.error("Error fetching test details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestDetails();
+  }, [testId]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!testDetails) {
+    return <div>No details available for this test.</div>;
+  }
 
   return (
-    <div className="w-full h-full max-w-4xl mx-auto mt-8 bg-gray-100 px-10 py-5 font-nunito">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold mb-4">Bài thi môn <span>OOP</span></h1>
-        </div>
-        <div className="flex items-center justify-center">
-          <div className="text-blue-600 font-bold mr-12">Kết quả: <span>9.0</span>/10</div>
-          <div className="text-blue-600 font-bold mr-12">Câu đúng: <span>36</span>/40</div>
-        </div>
-      </div>
-      
-      {/* Nội dung bài thi */}
-      <div className="overflow-x-auto max-h-[500px] bg-white rounded-2xl">
-        <div className="px-12 py-6">
-          {/* Các câu hỏi và câu trả lời */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
-                <span>1</span>
-                <span>. Hãy cho biết khái niệm OOP là gì?</span>
-              </h2>
-              <button 
-                className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                onClick={handleReportClick}
-              >
-                <MdOutlineReport size={24} className="mr-2"/><span>Báo lỗi</span>
-              </button>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--1"/> 
-                <span className="ml-2">A. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--1"/>
-                <span className="ml-2">B. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--1"/>
-                <span className="ml-2">C. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--1"/>
-                <span className="ml-2">D. OOP là object oriented programming.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
-                <span>1</span>
-                <span>. Hãy cho biết khái niệm OOP là gì?</span>
-              </h2>
-              <button 
-                className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                onClick={handleReportClick}
-              >
-                <MdOutlineReport size={24} className="mr-2"/><span>Báo lỗi</span>
-              </button>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--2"/> 
-                <span className="ml-2">A. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--2"/>
-                <span className="ml-2">B. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--2"/>
-                <span className="ml-2">C. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--2"/>
-                <span className="ml-2">D. OOP là object oriented programming.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
-                <span>1</span>
-                <span>. Hãy cho biết khái niệm OOP là gì?</span>
-              </h2>
-              <button 
-                className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                onClick={handleReportClick}
-              >
-                <MdOutlineReport size={24} className="mr-2"/><span>Báo lỗi</span>
-              </button>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--3"/> 
-                <span className="ml-2">A. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--3"/>
-                <span className="ml-2">B. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--3"/>
-                <span className="ml-2">C. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--3"/>
-                <span className="ml-2">D. OOP là object oriented programming.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
-                <span>1</span>
-                <span>. Hãy cho biết khái niệm OOP là gì?</span>
-              </h2>
-              <button 
-                className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                onClick={handleReportClick}
-              >
-                <MdOutlineReport size={24} className="mr-2"/><span>Báo lỗi</span>
-              </button>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4"/> 
-                <span className="ml-2">A. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4"/>
-                <span className="ml-2">B. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4"/>
-                <span className="ml-2">C. OOP là object oriented programming.</span>
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4"/>
-                <span className="ml-2">D. OOP là object oriented programming.</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Modal popup báo lỗi */}
-          <ModalQuestionReport isOpen={showModal} onClose={() => setShowModal(false)} />
-        </div>
+    <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
+      <h1 className="text-2xl font-bold mb-4">Chi tiết bài thi</h1>
+      <div className="bg-white rounded-xl shadow-md p-5">
+        <h2 className="text-xl font-semibold mb-3">{testDetails.test_name}</h2>
+        <p><strong>Môn học:</strong> {testDetails.subject}</p>
+        <p><strong>Ngày tạo:</strong> {testDetails.create_at}</p>
+        <p><strong>Loại:</strong> {testDetails.type}</p>
+        <p><strong>Kết quả:</strong> {testDetails.result}</p>
+        <p><strong>Ghi chú:</strong> {testDetails.notes || "Không có ghi chú"}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DoTest
+export default LookUpDetails;
