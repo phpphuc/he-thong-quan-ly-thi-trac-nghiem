@@ -3,14 +3,14 @@ import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { IoInformationCircle, IoTrashSharp } from "react-icons/io5";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const TestBank = () => {
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
   const filterRef = useRef(null);
   const typeRef = useRef(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Hàm xử lý thay đổi giá trị filter
   const handleChangeFilter = (e) => {
@@ -64,7 +64,7 @@ const TestBank = () => {
   return (
     <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
       {/* Tiêu đề */}
-      <h1 className="text-2xl font-bold mb-4">Ngân hàng đề thi</h1>
+      <h1 className="text-2xl font-bold mb-4">Ngân hàng câu hỏi</h1>
 
       {/* Khu vực lọc */}
       <div className="flex items-center my-5 justify-between">
@@ -101,8 +101,11 @@ const TestBank = () => {
           </button>
         </div>
         <div>
-          <button className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50">
-            Tạo mới đề
+          <button
+            onClick={() => navigate("/giangvien/taomoicauhoi")}
+            className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50"
+          >
+            Tạo mới
           </button>
         </div>
       </div>
@@ -131,13 +134,13 @@ const TestBank = () => {
                 <td className="px-4 py-2 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                    // onClick={() => goToTest(item.id)}
+                    onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
                   >
                     <IoInformationCircle size={24} />
                   </button>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-                    // onClick={() => goToTest(item.id)}
+                    // onClick={() => hiện modal popup xác nhận xóa và gọi API xóa => useEffect cập nhật lại dữ liệu}
                   >
                     <IoTrashSharp size={24} />
                   </button>

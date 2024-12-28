@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [studentCurrentView, setStudentCurrentView] = useState("baithi");
+  const [generalCurrentView, setGeneralCurrentView] = useState("kythi");
 
   const login = (user) => {
     setUser(user);
@@ -19,7 +20,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, studentCurrentView, setStudentCurrentView }}
+      value={{
+        user,
+        login,
+        logout,
+        studentCurrentView,
+        setStudentCurrentView,
+        generalCurrentView,
+        setGeneralCurrentView,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -3,7 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 
 const GeneralSidebar = ({ isSidebarOpen }) => {
   const navigate = useNavigate();
-  const { studentCurrentView, setStudentCurrentView } = useAuth();
+  const { generalCurrentView, setGeneralCurrentView } = useAuth();
 
   return (
     <div
@@ -15,40 +15,40 @@ const GeneralSidebar = ({ isSidebarOpen }) => {
       <div className="p-4">
         <div
           className="text-blue-500 text-xl font-medium mb-12 cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/giangvien")}
         >
           Trắc nghiệm
         </div>
         <nav>
           <button
             onClick={() => {
-              setStudentCurrentView("kythi");
-              navigate("/admin");
+              setGeneralCurrentView("kythi");
+              navigate("/giangvien");
             }}
-            className={`block w-full mb-4 ${
-              studentCurrentView === "kythi" ? "text-blue-500" : "text-gray-600"
+            className={`block w-full mb-6 ${
+              generalCurrentView === "kythi" ? "text-blue-500" : "text-gray-600"
             }`}
           >
             Kỳ thi
           </button>
           <button
             onClick={() => {
-              setStudentCurrentView("dethi");
-              navigate("/admin");
+              setGeneralCurrentView("dethi");
+              navigate("/giangvien");
             }}
-            className={`block w-full ${
-              studentCurrentView === "dethi" ? "text-blue-500" : "text-gray-600"
+            className={`block w-full mb-6 ${
+              generalCurrentView === "dethi" ? "text-blue-500" : "text-gray-600"
             }`}
           >
             Đề thi
           </button>
           <button
             onClick={() => {
-              setStudentCurrentView("cauhoi");
-              navigate("/admin");
+              setGeneralCurrentView("cauhoi");
+              navigate("/giangvien");
             }}
-            className={`block w-full ${
-              studentCurrentView === "cauhoi"
+            className={`block w-full mb-6 ${
+              generalCurrentView === "cauhoi"
                 ? "text-blue-500"
                 : "text-gray-600"
             }`}
@@ -57,11 +57,11 @@ const GeneralSidebar = ({ isSidebarOpen }) => {
           </button>
           <button
             onClick={() => {
-              setStudentCurrentView("thongke");
-              navigate("/admin");
+              setGeneralCurrentView("thongke");
+              navigate("/giangvien");
             }}
-            className={`block w-full ${
-              studentCurrentView === "thongke"
+            className={`block w-full mb-6 ${
+              generalCurrentView === "thongke"
                 ? "text-blue-500"
                 : "text-gray-600"
             }`}
