@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { IoArrowBackOutline } from "react-icons/io5";
+import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
+import { ShieldX } from "lucide-react";
 import { IoMdAdd } from "react-icons/io";
 import Notification from "../common/Notification";
+import axios from "axios";
 
 const QuestionCreation = () => {
   const initialData = {
-    title: "",
+    subject_id: "1",
+    teacher_id: 1,
     question: "",
-    level: "nhanbiet",
-    answers: [
-      { id: 1, text: "", isCorrect: false },
-      { id: 2, text: "", isCorrect: false },
-      { id: 3, text: "", isCorrect: false },
-      { id: 4, text: "", isCorrect: false },
-    ],
+    level: "EASY",
+    rightanswer: "",
+    answer_a: "",
+    answer_b: "",
+    answer_c: "",
+    answer_d: "",
   };
   const [formData, setFormData] = useState(initialData);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -23,51 +25,58 @@ const QuestionCreation = () => {
     message: "",
   });
 
-  const handleAnswerChange = (index) => {
-    const newAnswers = formData.answers.map((answer, i) => ({
-      ...answer,
-      isCorrect: i === index,
-    }));
-    setFormData({ ...formData, answers: newAnswers });
-    setSelectedAnswer(index);
+  const handleAnswerChange = (answer) => {
+    setSelectedAnswer(answer);
+    setFormData({ ...formData, rightanswer: answer });
   };
 
-  const handleSubmit = () => {
-    // Kiểm tra các trường dữ liệu đã điền đầy đủ và chọn đáp án đúng chưa
-    if (!formData.title.trim() || !formData.question.trim()) {
+  const handleSubmit = async () => {
+    if (!formData.question.trim()) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng điền đầy đủ tiêu đề và câu hỏi!`,
+        message: "Vui lòng điền đầy đủ câu hỏi!",
       });
       return;
     }
 
-    if (formData.answers.some((answer) => !answer.text.trim())) {
+    if (
+      !formData.answer_a.trim() ||
+      !formData.answer_b.trim() ||
+      !formData.answer_c.trim() ||
+      !formData.answer_d.trim()
+    ) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng điền đầy đủ các phương án trả lời!`,
+        message: "Vui lòng điền đầy đủ các phương án trả lời!",
       });
       return;
     }
 
-    if (!formData.answers.some((answer) => answer.isCorrect)) {
+    if (!formData.rightanswer) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng chọn đáp án đúng!`,
+        message: "Vui lòng chọn đáp án đúng!",
       });
       return;
     }
 
-    // Create the JSON object to send to API
-    const dataToSubmit = {
-      title: formData.title,
-      question: formData.question,
-      level: formData.level,
-      answers: formData.answers,
-    };
-
-    console.log("Data to submit:", dataToSubmit);
-    // Gọi API tạo câu hỏi...
+    try {
+      await axios.post(`http://127.0.0.1:8000/api/v1/questions`, formData);
+      setNotification({
+        isVisible: true,
+        message: "Tạo mới câu hỏi thành công!",
+        bgColor: "green",
+        icon: <IoCheckmarkDone />,
+      });
+    } catch (error) {
+      setNotification({
+        isVisible: true,
+        message: "Có lỗi xảy ra khi tạo mới câu hỏi!",
+        bgColor: "red",
+        icon: <ShieldX />,
+      });
+      console.log(error);
+    }
   };
 
   return (
@@ -77,11 +86,12 @@ const QuestionCreation = () => {
           Tiêu đề:{" "}
           <input
             type="text"
-            value={formData.title}
-            placeholder="Nhập tiêu đề câu hỏi"
+            value={formData.question}
+            placeholder=""
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
+            disabled
             className="border border-gray-300 rounded px-2 py-1"
           />
         </h1>
@@ -91,20 +101,20 @@ const QuestionCreation = () => {
         <div className="px-12 py-6">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex-grow mr-4">
+              <div>
                 <h2 className="font-semibold">
                   <input
                     type="text"
                     value={formData.question}
-                    placeholder="Nhập nội dung câu hỏi"
                     onChange={(e) =>
                       setFormData({ ...formData, question: e.target.value })
                     }
-                    className="border border-gray-300 rounded px-2 py-1 w-full"
+                    className="border border-gray-300 rounded px-2 py-1 w-96"
+                    placeholder="Nhập câu hỏi"
                   />
                 </h2>
               </div>
-              <div className="flex items-center">
+              <div className="mr-4 flex items-center">
                 <p className="font-semibold mr-2">Độ khó:</p>
                 <select
                   value={formData.level}
@@ -113,35 +123,34 @@ const QuestionCreation = () => {
                   }
                   className="border border-gray-300 rounded px-2 py-1"
                 >
-                  <option value="nhanbiet">Nhận biết</option>
-                  <option value="thonghieu">Thông hiểu</option>
-                  <option value="vandung">Vận dụng</option>
+                  <option value="EASY">EASY</option>
+                  <option value="NORMAL">NORMAL</option>
+                  <option value="HARD">HARD</option>
                 </select>
               </div>
             </div>
             <div>
-              {formData.answers.map((answer, index) => (
-                <div key={answer.id} className="mb-3 flex items-center">
+              {["A", "B", "C", "D"].map((letter) => (
+                <div key={letter} className="mb-3 flex items-center">
                   <input
                     type="radio"
                     name="answer"
-                    checked={answer.isCorrect}
-                    onChange={() => handleAnswerChange(index)}
+                    checked={selectedAnswer === letter}
+                    onChange={() => handleAnswerChange(letter)}
                   />
                   <input
                     type="text"
-                    value={answer.text}
-                    placeholder={`Nhập phương án ${String.fromCharCode(
-                      65 + index
-                    )}`}
+                    value={formData[`answer_${letter.toLowerCase()}`]}
                     onChange={(e) => {
-                      const newAnswers = [...formData.answers];
-                      newAnswers[index].text = e.target.value;
-                      setFormData({ ...formData, answers: newAnswers });
+                      setFormData({
+                        ...formData,
+                        [`answer_${letter.toLowerCase()}`]: e.target.value,
+                      });
                     }}
-                    className="ml-2 border border-gray-300 rounded px-2 py-1 w-96"
+                    className="ml-2 w-96 border border-gray-300 rounded px-2 py-1"
+                    placeholder={`Phương án ${letter}`}
                   />
-                  {answer.isCorrect && (
+                  {selectedAnswer === letter && (
                     <FaCheck size={20} className="text-green-500 ml-2" />
                   )}
                 </div>
@@ -155,6 +164,8 @@ const QuestionCreation = () => {
             onClose={() =>
               setNotification({ ...notification, isVisible: false })
             }
+            bgColor={notification.bgColor}
+            icon={notification.icon}
           />
 
           <div className="text-center mt-12 flex items-center justify-center">

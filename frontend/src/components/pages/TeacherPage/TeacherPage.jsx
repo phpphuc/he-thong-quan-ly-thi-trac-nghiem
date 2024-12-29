@@ -30,7 +30,7 @@ const TeacherPage = () => {
             isSidebarOpen={isSidebarOpen}
             setSidebarOpen={setSidebarOpen}
           />
-          <div className="bg-gray-100 rounded-lg shadow-sm mb-6">
+          <div className="bg-gray-100 rounded-lg shadow-sm mb-6 h-[100vh] relative">
             {componentMap[generalCurrentView] || <div>View not found</div>}
           </div>
         </div>

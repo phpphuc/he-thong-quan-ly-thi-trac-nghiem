@@ -1,89 +1,120 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEdit, FaCheck } from "react-icons/fa";
-import { IoArrowBackOutline } from "react-icons/io5";
+import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
+import { ShieldX } from "lucide-react";
 import Notification from "../common/Notification";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const QuestionAdjustment = () => {
   const initialData = {
-    id: "1",
-    title: "Tên câu hỏi",
-    question: "Hãy cho biết khái niệm OOP là gì?",
-    level: "nhanbiet",
-    answers: [
-      { id: 1, text: "OOP là object oriented programming.", isCorrect: false },
-      { id: 2, text: "OOP là object oriented programming.", isCorrect: false },
-      { id: 3, text: "OOP là object oriented programming.", isCorrect: false },
-      { id: 4, text: "OOP là object oriented programming.", isCorrect: false },
-    ],
+    subject_id: "",
+    teacher_id: 0,
+    question: "",
+    level: "EASY",
+    rightanswer: "A",
+    answer_a: "",
+    answer_b: "",
+    answer_c: "",
+    answer_d: "",
   };
+
   const [formData, setFormData] = useState(initialData);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState("A");
   const [notification, setNotification] = useState({
     isVisible: false,
     message: "",
   });
+  const { id } = useParams();
+  const [questions, setQuestions] = useState([]);
 
-  const handleAnswerChange = (index) => {
-    const newAnswers = formData.answers.map((answer, i) => ({
-      ...answer,
-      isCorrect: i === index,
-    }));
-    setFormData({ ...formData, answers: newAnswers });
-    setSelectedAnswer(index);
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/v1/questions"
+        );
+        setQuestions(response.data);
+      } catch (err) {
+        console.log(err.message || "Something went wrong");
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      const foundQuestion = questions.find(
+        (question) => question.id === parseInt(id, 10)
+      );
+      if (foundQuestion) {
+        setFormData(foundQuestion);
+        setSelectedAnswer(foundQuestion.rightanswer);
+      }
+    }
+  }, [questions, id]);
+
+  const handleAnswerChange = (answer) => {
+    setSelectedAnswer(answer);
+    setFormData({ ...formData, rightanswer: answer });
   };
 
-  const handleSubmit = () => {
-    // Kiểm tra các trường dữ liệu đã điền đầy đủ và chọn đáp án đúng chưa
-    if (!formData.title.trim() || !formData.question.trim()) {
+  const handleSubmit = async () => {
+    if (!formData.question.trim()) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng điền đầy đủ tiêu đề và câu hỏi!`,
+        message: "Vui lòng điền đầy đủ câu hỏi!",
       });
       return;
     }
 
-    if (formData.answers.some((answer) => !answer.text.trim())) {
+    if (
+      !formData.answer_a.trim() ||
+      !formData.answer_b.trim() ||
+      !formData.answer_c.trim() ||
+      !formData.answer_d.trim()
+    ) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng điền đầy đủ các phương án trả lời!`,
+        message: "Vui lòng điền đầy đủ các phương án trả lời!",
       });
       return;
     }
 
-    if (!formData.answers.some((answer) => answer.isCorrect)) {
+    if (!formData.rightanswer) {
       setNotification({
         isVisible: true,
-        message: `Vui lòng chọn đáp án đúng!`,
+        message: "Vui lòng chọn đáp án đúng!",
       });
       return;
     }
 
-    // Đóng gói thông tin để gửi qua API
-    const dataToSubmit = {
-      id: formData.id,
-      title: formData.title,
-      question: formData.question,
-      level: formData.level,
-      answers: formData.answers,
-    };
-    console.log("Data to submit:", dataToSubmit);
-
-    // Gọi API update...
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/v1/questions/${id}`, formData);
+      setNotification({
+        isVisible: true,
+        message: "Cập nhật câu hỏi thành công!",
+        bgColor: "green",
+        icon: <IoCheckmarkDone />,
+      });
+      console.log(formData);
+    } catch (error) {
+      setNotification({
+        isVisible: true,
+        message: "Có lỗi xảy ra khi cập nhật câu hỏi!",
+        bgColor: "red",
+        icon: <ShieldX />,
+      });
+      console.log(error);
+    }
   };
 
   return (
     <div className="w-full h-full max-w-4xl mx-auto mt-8 bg-gray-100 px-10 py-5 font-nunito">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">
-          ID -{" "}
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            className="border border-gray-300 rounded px-2 py-1"
-          />
+          {id} - {formData.question}
         </h1>
       </div>
 
@@ -100,6 +131,7 @@ const QuestionAdjustment = () => {
                       setFormData({ ...formData, question: e.target.value })
                     }
                     className="border border-gray-300 rounded px-2 py-1 w-96"
+                    placeholder="Nhập câu hỏi"
                   />
                 </h2>
               </div>
@@ -112,32 +144,34 @@ const QuestionAdjustment = () => {
                   }
                   className="border border-gray-300 rounded px-2 py-1"
                 >
-                  <option value="nhanbiet">Nhận biết</option>
-                  <option value="thonghieu">Thông hiểu</option>
-                  <option value="vandung">Vận dụng</option>
+                  <option value="EASY">EASY</option>
+                  <option value="NORMAL">NORMAL</option>
+                  <option value="HARD">HARD</option>
                 </select>
               </div>
             </div>
             <div>
-              {formData.answers.map((answer, index) => (
-                <div key={answer.id} className="mb-3 flex items-center">
+              {["A", "B", "C", "D"].map((letter) => (
+                <div key={letter} className="mb-3 flex items-center">
                   <input
                     type="radio"
                     name="answer"
-                    checked={answer.isCorrect}
-                    onChange={() => handleAnswerChange(index)}
+                    checked={selectedAnswer === letter}
+                    onChange={() => handleAnswerChange(letter)}
                   />
                   <input
                     type="text"
-                    value={answer.text}
+                    value={formData[`answer_${letter.toLowerCase()}`]}
                     onChange={(e) => {
-                      const newAnswers = [...formData.answers];
-                      newAnswers[index].text = e.target.value;
-                      setFormData({ ...formData, answers: newAnswers });
+                      setFormData({
+                        ...formData,
+                        [`answer_${letter.toLowerCase()}`]: e.target.value,
+                      });
                     }}
-                    className="ml-2 w-96 border border-gray-300 rounded px-2 py-1 "
+                    className="ml-2 w-96 border border-gray-300 rounded px-2 py-1"
+                    placeholder={`Phương án ${letter}`}
                   />
-                  {answer.isCorrect && (
+                  {selectedAnswer === letter && (
                     <FaCheck size={20} className="text-green-500 ml-2" />
                   )}
                 </div>
@@ -151,6 +185,8 @@ const QuestionAdjustment = () => {
             onClose={() =>
               setNotification({ ...notification, isVisible: false })
             }
+            bgColor={notification.bgColor}
+            icon={notification.icon}
           />
 
           <div className="text-center mt-12 flex items-center justify-center">

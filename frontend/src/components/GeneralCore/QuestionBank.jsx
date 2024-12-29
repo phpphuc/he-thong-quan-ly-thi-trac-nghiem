@@ -1,72 +1,103 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { IoInformationCircle, IoTrashSharp } from "react-icons/io5";
+import {
+  IoInformationCircle,
+  IoTrashSharp,
+  IoCheckmarkDone,
+} from "react-icons/io5";
+import { ShieldX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DeleteModal from "../common/DeleteModal";
+import Notification from "../common/Notification";
+import axios from "axios";
+import "../../assets/customCSS/LoadingEffect.css";
 
-const TestBank = () => {
+const QuestionBank = () => {
+  const [questions, setQuestions] = useState([]);
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedQuestionId, setSelectedQuestionId] = useState(null);
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: "",
+  });
   const filterRef = useRef(null);
   const typeRef = useRef(null);
   const navigate = useNavigate();
 
-  // Hàm xử lý thay đổi giá trị filter
+  const fetchQuestions = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/v1/questions"
+      );
+      setQuestions(response.data);
+    } catch (err) {
+      console.log(err.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
     filterRef.current.blur();
   };
 
-  // Hàm xử lý thay đổi giá trị type
   const handleChangeType = (e) => {
     setTypeValue(e.target.value);
     typeRef.current.blur();
   };
 
-  // Hàm reset các select về giá trị mặc định
   const handleReset = () => {
     setFilterValue("default");
     setTypeValue("default");
   };
 
-  //   const goToTest = (testId) => {
-  //     navigate(`/sinhvien/baithi/${testId}`);
-  //   };
+  const handleDeleteClick = (questionId) => {
+    setSelectedQuestionId(questionId);
+    setIsDeleteModalOpen(true);
+  };
 
-  const data = [
-    {
-      id: "00001",
-      test_name: "Đề OOP",
-      subject: "OOP",
-      create_at: "01 November 2023",
-      type: "Tập trung",
-      struct: "Thi cuối kỳ môn OOP",
-    },
-    {
-      id: "00002",
-      test_name: "Đề OOP",
-      subject: "OOP",
-      create_at: "01 December 2023",
-      type: "Thi riêng",
-      struct: "Thi cuối kỳ môn OOP",
-    },
-    {
-      id: "00003",
-      test_name: "Đề OOP",
-      subject: "OOP",
-      create_at: "01 November 2024",
-      type: "Tập trung",
-      struct: "Thi cuối kỳ môn OOP",
-    },
-  ];
+  const handleDeleteConfirm = async (questionId) => {
+    try {
+      await axios.delete(
+        `http://127.0.0.1:8000/api/v1/questions/${questionId}`
+      );
+      await fetchQuestions();
+      setNotification({
+        isVisible: true,
+        message: "Xóa câu hỏi thành công!",
+        bgColor: "green",
+        icon: <IoCheckmarkDone />,
+      });
+      setIsDeleteModalOpen(false);
+    } catch (err) {
+      console.log(err.message || "Error deleting question");
+      setNotification({
+        isVisible: true,
+        message: "Đã xảy ra lỗi khi xóa câu hỏi! Hãy thử lại sau.",
+        bgColor: "red",
+        icon: <ShieldX />,
+      });
+      setIsDeleteModalOpen(false);
+    }
+  };
 
-  return (
-    <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
-      {/* Tiêu đề */}
+  return isLoading ? (
+    <div className="loader w-[50px] h-[50px] bg-gray-100 py-5 font-nunito absolute top-1/3 left-1/2 "></div>
+  ) : (
+    <div className="w-full h-full px-12 mx-auto bg-gray-100 py-5 font-nunito">
       <h1 className="text-2xl font-bold mb-4">Ngân hàng câu hỏi</h1>
 
-      {/* Khu vực lọc */}
       <div className="flex items-center my-5 justify-between">
         <div className="flex items-center space-x-4">
           <CiFilter size={24} />
@@ -110,27 +141,34 @@ const TestBank = () => {
         </div>
       </div>
 
-      {/* Bảng danh sách bài thi */}
-      <div className="overflow-x-auto min-h-[470px] bg-white rounded-2xl">
+      <Notification
+        message={notification.message}
+        isVisible={notification.isVisible}
+        onClose={() => setNotification({ ...notification, isVisible: false })}
+        bgColor={notification.bgColor}
+        icon={notification.icon}
+      />
+
+      <div className="overflow-x-auto max-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
           <thead>
             <tr className="text-center">
               <th className="px-4 py-2">ID</th>
-              <th className="px-4 py-2">Tên bộ đề</th>
+              <th className="px-4 py-2">Tên câu hỏi</th>
               <th className="px-4 py-2">Môn học</th>
               <th className="px-4 py-2">Ngày tạo</th>
-              <th className="px-4 py-2">Cấu trúc</th>
+              <th className="px-4 py-2">Độ khó</th>
               <th className="px-4 py-2 text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((item) => (
+            {questions.map((item) => (
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
-                <td className="px-4 py-2 text-center">{item.test_name}</td>
-                <td className="px-4 py-2 text-center">{item.subject}</td>
-                <td className="px-4 py-2 text-center">{item.create_at}</td>
-                <td className="px-4 py-2 text-center">{item.struct}</td>
+                <td className="px-4 py-2 text-center">{item.question}</td>
+                <td className="px-4 py-2 text-center">{item.subject_id}</td>
+                <td className="px-4 py-2 text-center">{item.created_at}</td>
+                <td className="px-4 py-2 text-center">{item.level}</td>
                 <td className="px-4 py-2 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
@@ -140,7 +178,7 @@ const TestBank = () => {
                   </button>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-                    // onClick={() => hiện modal popup xác nhận xóa và gọi API xóa => useEffect cập nhật lại dữ liệu}
+                    onClick={() => handleDeleteClick(item.id)}
                   >
                     <IoTrashSharp size={24} />
                   </button>
@@ -151,7 +189,6 @@ const TestBank = () => {
         </table>
       </div>
 
-      {/* Khu vực phân trang */}
       <div className="flex items-center justify-between mt-4">
         <div>Hiển thị 01-09 trong số 30</div>
         <div className="flex items-center space-x-2">
@@ -163,8 +200,15 @@ const TestBank = () => {
           </button>
         </div>
       </div>
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        questionId={selectedQuestionId}
+      />
     </div>
   );
 };
 
-export default TestBank;
+export default QuestionBank;
