@@ -35,6 +35,9 @@ class DatabaseSeeder extends Seeder
             } else if ($createdUser->role == 'STUDENT') {
                 $createdUser->student()->create();
             }
+            else if ($createdUser->role == 'SCHOOLBOARD') {
+                $createdUser->schoolboard()->create();
+            }
         }
 
         $subjects = [
