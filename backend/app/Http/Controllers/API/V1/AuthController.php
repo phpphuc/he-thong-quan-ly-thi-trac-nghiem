@@ -25,7 +25,7 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|string|in:TEACHER,STUDENT',
+            'role' => 'required|string|in:TEACHER,STUDENT,SCHOOLBOARD',
             'phone' => 'required|string',
             'address' => 'required|string',
             'birth_date' => 'required|date',
@@ -45,6 +45,8 @@ class AuthController extends Controller
             $user->teacher()->create();
         } else if ($request->role == 'STUDENT') {
             $user->student()->create();
+        } else if ($request->role == 'SCHOOLBOARD') {
+            $user->schoolboard()->create();
         }
 
         $token = $user->createToken('authToken')->plainTextToken;
