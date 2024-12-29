@@ -70,10 +70,10 @@ Route::prefix('v1')->group(function () {
 
 
     Route::post('/subject/store', [SubjectController::class, 'store']);
-    Route::put('/subject/update/{subject_id}', [SubjectController::class, 'update']);
-    Route::delete('/subject/delete/{subject_id}', [SubjectController::class, 'destroy']);
-    Route::post('/subject/{subject_id}/link-class', [SubjectController::class, 'linkClass']);
-    Route::post('/subject/{subject_id}/link-exam', [SubjectController::class, 'linkExam']);
+    Route::put('/subject/update/{id}', [SubjectController::class, 'update']);
+    Route::delete('/subject/delete/{id}', [SubjectController::class, 'destroy']);
+    Route::post('/subject/{id}/link-class', [SubjectController::class, 'linkClass']);
+    Route::post('/subject/{id}/link-exam', [SubjectController::class, 'linkExam']);
 
     Route::get('/class-students', [ClassStudentController::class, 'index']); 
     Route::post('/class-students', [ClassStudentController::class, 'store']); 
