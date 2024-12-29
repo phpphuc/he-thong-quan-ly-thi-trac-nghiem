@@ -13,12 +13,10 @@ class SubjectController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'subject_id'   => 'required|string|max:255',
             'name'  => 'required|string|max:255'
         ]);
 
         $subject = Subject::create([
-            'subject_id'  => $request->subject_id,
             'name' => $request->name
         ]);
 
@@ -29,9 +27,9 @@ class SubjectController extends Controller
     }
 
     //Sửa thông tin môn học
-    public function update(Request $request, $subject_id)
+    public function update(Request $request, $id)
     {
-        $subject = Subject::findOrFail($subject_id);
+        $subject = Subject::findOrFail($id);
 
         $request->validate([
             'name'  => 'sometimes|string|max:255'
@@ -50,9 +48,9 @@ class SubjectController extends Controller
     }
 
     // Xóa một môn học
-    public function destroy($subject_id)
+    public function destroy($id)
     {
-        $subject = Subject::findOrFail($subject_id);
+        $subject = Subject::findOrFail($id);
         $subject->delete();
 
         return response()->json([
@@ -61,16 +59,16 @@ class SubjectController extends Controller
     }
 
     // Liên kết môn học với các lớp học
-    public function linkClass(Request $request, $subject_id)
+    public function linkClass(Request $request, $id)
     {
         $request->validate([
             'class_id' => 'required|exists:classes,class_id'
         ]);
 
-        $subject = Subject::findOrFail($subject_id);
+        $subject = Subject::findOrFail($id);
         $class = Classroom::findOrFail($request->class_id);
 
-        $class->subject_id = $subject->subject_id;
+        
         $class->save();
 
         return response()->json([
@@ -80,16 +78,16 @@ class SubjectController extends Controller
     }
 
     // Liên kết môn học với kỳ thi
-    public function linkExam(Request $request, $subject_id)
+    public function linkExam(Request $request, $id)
     {
         $request->validate([
             'exam_id' => 'required|exists:exams,exam_id'
         ]);
 
-        $subject = Subject::findOrFail($subject_id);
+        $subject = Subject::findOrFail($id);
         $exam = Exam::findOrFail($request->exam_id);
 
-        $exam->subject_id = $subject->subject_id;
+        
         $exam->save();
 
         return response()->json([
