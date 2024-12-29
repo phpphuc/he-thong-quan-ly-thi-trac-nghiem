@@ -30,22 +30,22 @@ class ExamController extends Controller
 
         // Lấy danh sách câu hỏi
         $questions = Question::where('subject_id', $validated['subject_id'])
-            ->whereIn('level', ['Nhận biết', 'Thông hiểu', 'Vận dụng'])
+            ->whereIn('level', ['EASY', 'NORMAL', 'HARD'])
             ->get()
             ->groupBy('level');
 
         $selectedQuestions = collect();
 
         $selectedQuestions = $selectedQuestions->merge(
-            $questions->get('Nhận biết', collect())->random(min($validated['Qtype1'], $questions->get('Nhận biết', collect())->count()))
+            $questions->get('EASY', collect())->random(min($validated['Qtype1'], $questions->get('EASY', collect())->count()))
         );
 
         $selectedQuestions = $selectedQuestions->merge(
-            $questions->get('Thông hiểu', collect())->random(min($validated['Qtype2'], $questions->get('Thông hiểu', collect())->count()))
+            $questions->get('NORMAL', collect())->random(min($validated['Qtype2'], $questions->get('NORMAL', collect())->count()))
         );
 
         $selectedQuestions = $selectedQuestions->merge(
-            $questions->get('Vận dụng', collect())->random(min($validated['Qtype3'], $questions->get('Vận dụng', collect())->count()))
+            $questions->get('HARD', collect())->random(min($validated['Qtype3'], $questions->get('HARD', collect())->count()))
         );
 
         $selectedQuestions = $selectedQuestions->shuffle();
