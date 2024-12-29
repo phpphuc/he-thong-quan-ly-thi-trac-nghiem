@@ -15,15 +15,15 @@ class Subject extends Model
 
     public function questions()
     {
-        return $this->hasMany(Question::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Question::class);
     }
     public function classes()
     {
-        return $this->hasMany(Classroom::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Classroom::class);
     }
     public function exams()
     {
-        return $this->hasMany(Exam::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Exam::class');
     }
     public function teacher()
     {
