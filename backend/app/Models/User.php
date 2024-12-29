@@ -50,6 +50,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    protected $casts = [
+        'created_at' => 'date:Y-m-d', 
+    ];
     public function teacher()
     {
         return $this->hasOne(Teacher::class);
