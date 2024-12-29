@@ -62,4 +62,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
+    public function schoolboard()
+    {
+        return $this->hasOne(SchoolBoard::class);
+    }
 }
