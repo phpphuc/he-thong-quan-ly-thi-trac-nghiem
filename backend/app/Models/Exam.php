@@ -38,4 +38,8 @@ class Exam extends Model
     {
         return $this->belongsToMany(Question::class, 'exam_question', 'exam_id', 'question_id');
     }
+    public function classrooms()
+    {
+        return $this->belongsToMany(Classroom::class, 'class_exam', 'exam_id', 'class_id');
+    }
 }
