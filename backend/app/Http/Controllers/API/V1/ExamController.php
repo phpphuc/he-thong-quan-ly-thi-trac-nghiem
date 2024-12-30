@@ -69,6 +69,23 @@ class ExamController extends Controller
             'exam' => $exam,
         ], 201);
     }
+    // danh sách bài thi dành cho sinh viên
+    public function getExamsForStudent($id)
+{
+    $student = Student::findOrFail($id);
+
+    // Lấy danh sách lớp học của sinh viên
+    $classrooms = $student->classes()->pluck('id');
+
+    // Lấy danh sách bài thi thuộc các lớp học đó
+    $exams = Exam::whereHas('classrooms', function ($query) use ($classrooms) {
+        $query->whereIn('id', $classrooms);
+    })->get();
+
+    return response()->json([
+        'exams' => $exams,
+    ]);
+}
 
     public function showExam($id)
     {
