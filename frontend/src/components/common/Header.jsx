@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { FaCaretDown, FaUserEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
-import { useNavigate, Navigate, replace } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { TypeOutline } from "lucide-react";
 
 const Header = ({
   isSidebarOpen,
@@ -12,6 +13,13 @@ const Header = ({
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  const username = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")).attributes.name
+    : null;
+  const type = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")).type
+    : null;
 
   const handleSearch = useCallback(
     (e) => {
@@ -101,8 +109,8 @@ const Header = ({
               />
             </div>
             <div className="mr-4">
-              <p className="font-nunito font-bold">{user?.attributes.name}</p>
-              <p className="font-nunito font-light">{user?.type}</p>
+              <p className="font-nunito font-bold">{username}</p>
+              <p className="font-nunito font-light">{type}</p>
             </div>
             <div
               className="mr-4 cursor-pointer"
@@ -118,7 +126,7 @@ const Header = ({
 
             {/* Dropdown Menu */}
             <div
-              className={`absolute right-4 top-full mt-2 w-48 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200 ease-in-out ${
+              className={`absolute right-4 top-full z-50 mt-2 w-48 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200 ease-in-out ${
                 isDropdownOpen
                   ? "transform opacity-100 scale-100"
                   : "transform opacity-0 scale-95 pointer-events-none"

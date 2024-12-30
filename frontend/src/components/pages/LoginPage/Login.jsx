@@ -22,14 +22,15 @@ const LoginPage = () => {
         email,
         password,
       });
+      // console.log(response.data.data);
       // Xử lý thành công
       login(response.data.data);
       // Điều hướng trang theo role tương ứng
-      if (response.data.data.type === "users") {
+      if (response.data.data.type === "STUDENT") {
         navigate("/sinhvien");
-      } else if (response.data.data.type === "teacher") {
-        navigate("/giaovien");
-      } else if (response.data.data.type === "schoolboard") {
+      } else if (response.data.data.type === "TEACHER") {
+        navigate("/giangvien");
+      } else if (response.data.data.type === "SCHOOLBOARD") {
         navigate("/bgh");
       }
     } catch (err) {

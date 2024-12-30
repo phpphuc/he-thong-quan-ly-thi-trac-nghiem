@@ -7,7 +7,24 @@ import { useAuth } from "../../auth/AuthContext";
 
 const StudentPage = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const { studentCurrentView } = useAuth();
+
+  // Map các component
+  const componentMap = {
+    baithi: <TestList searchQuery={searchQuery} />,
+    tracuu: <TestHistory searchQuery={searchQuery} />,
+  };
+
+  // Map các placeholder
+  const searchPlaceholders = {
+    baithi: "Tìm kiếm bài thi...",
+    tracuu: "Tìm kiếm bài thi cần tra cứu...",
+  };
+
+  // Lấy placeholder dựa trên view hiện tại
+  const currentPlaceholder =
+    searchPlaceholders[studentCurrentView] || "Tìm kiếm...";
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -21,9 +38,11 @@ const StudentPage = () => {
           <Header
             isSidebarOpen={isSidebarOpen}
             setSidebarOpen={setSidebarOpen}
+            onSearch={setSearchQuery}
+            searchPlaceholder={currentPlaceholder}
           />
           <div className="bg-gray-100 rounded-lg shadow-sm mb-6">
-            {studentCurrentView === "tracuu" ? <TestHistory /> : <TestList />}
+            {componentMap[studentCurrentView] || <div>View not found</div>}
           </div>
         </div>
       </div>

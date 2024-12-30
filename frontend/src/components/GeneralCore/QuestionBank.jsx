@@ -47,18 +47,18 @@ const QuestionBank = ({ searchQuery }) => {
     }
   };
 
-  const fetchSubjects = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/v1/subjects");
-      setSubjects(response.data);
-    } catch (err) {
-      console.log(err.message || "Error fetching subjects");
-    }
-  };
+  // const fetchSubjects = async () => {
+  //   try {
+  //     const response = await axios.get("http://127.0.0.1:8000/api/v1/subjects");
+  //     setSubjects(response.data);
+  //   } catch (err) {
+  //     console.log(err.message || "Error fetching subjects");
+  //   }
+  // };
 
   useEffect(() => {
     fetchQuestions();
-    fetchSubjects();
+    // fetchSubjects();
   }, []);
 
   useEffect(() => {
