@@ -16,7 +16,7 @@ class ClassController extends Controller
         $request->validate([
             'name'   => 'required|string|max:255',
             'subject_id'   => 'required|exists:subjects,subject_id',
-            'teacher_id'   => 'required|exists:teachers,Teacher_id'
+            'teacher_id'   => 'required|exists:teachers,teacher_id'
         ]);
 
         $class = Classroom::create([
@@ -39,7 +39,7 @@ class ClassController extends Controller
         $request->validate([
             'name'   => 'sometimes|string|max:255',
             'subject_id'   => 'sometimes|exists:subjects,subject_id',
-            'teacher_id'   => 'sometimes|exists:teachers,Teacher_id'
+            'teacher_id'   => 'sometimes|exists:teachers,teacher_id'
         ]);
 
         if ($request->has('name')) {
