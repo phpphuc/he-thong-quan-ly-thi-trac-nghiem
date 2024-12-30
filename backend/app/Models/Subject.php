@@ -10,20 +10,20 @@ class Subject extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'subject_name',
     ];
 
     public function questions()
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Question::class, 'subject_id', 'id');
     }
     public function classes()
     {
-        return $this->hasMany(Classroom::class);
+        return $this->hasMany(Classroom::class, 'subject_id', 'id');
     }
     public function exams()
     {
-        return $this->hasMany(Exam::class');
+        return $this->hasMany(Exam::class', 'subject_id', 'id');
     }
     public function teacher()
     {
