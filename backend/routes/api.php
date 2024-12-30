@@ -28,6 +28,7 @@ Route::prefix('v1')->group(function () {
     Route::get('questions', [QuestionController::class, 'index']);
     Route::post('questions', [QuestionController::class, 'store']);
     Route::put('questions/{id}', [QuestionController::class, 'update']);
+    Route::delete('questions/{id}', [QuestionController::class, 'destroy']);
 
     //Route::post('subjects', [SubjectController::class, 'store']);
 
@@ -49,7 +50,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/results/student/{studentId}', [ResultController::class, 'studentHistory']);
     Route::get('/results/exam/{examId}/report', [ResultController::class, 'examReport']);
 
-    
+
     Route::get('/schoolboards', [SchoolBoardController::class, 'index']);
     Route::get('/schoolboards/{id}', [SchoolBoardController::class, 'show']);
     Route::post('/schoolboards', [SchoolBoardController::class, 'store']);
@@ -59,7 +60,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/schoolboards/exams', [SchoolBoardController::class, 'exams']);
     Route::get('/schoolboards/exams/{examId}/report', [SchoolBoardController::class, 'examReport']);
 
-    
+
     Route::post('/exam/{exam_id}/attach-questions', [ExamQuestionController::class, 'attachQuestions']);
     Route::get('/exam/{exam_id}/questions', [ExamQuestionController::class, 'showQuestions']);
     Route::post('/exam/{exam_id}/detach-questions', [ExamQuestionController::class, 'detachQuestions']);
@@ -76,30 +77,25 @@ Route::prefix('v1')->group(function () {
     Route::post('/subject/{id}/link-class', [SubjectController::class, 'linkClass']);
     Route::post('/subject/{id}/link-exam', [SubjectController::class, 'linkExam']);
 
-    Route::get('/class-students', [ClassStudentController::class, 'index']); 
-    Route::post('/class-students', [ClassStudentController::class, 'store']); 
-    Route::get('/class-students/{classId}', [ClassStudentController::class, 'search']); 
-    Route::delete('/class-students/{classId}/{studentId}', [ClassStudentController::class, 'destroy']); 
+    Route::get('/class-students', [ClassStudentController::class, 'index']);
+    Route::post('/class-students', [ClassStudentController::class, 'store']);
+    Route::get('/class-students/{classId}', [ClassStudentController::class, 'search']);
+    Route::delete('/class-students/{classId}/{studentId}', [ClassStudentController::class, 'destroy']);
 
-    
-    Route::get('/teachers', [TeacherController::class, 'index']); 
-    Route::post('/teachers', [TeacherController::class, 'store']);  
-    Route::put('/teachers/{id}', [TeacherController::class, 'update']); 
-    Route::delete('/teachers/{id}', [TeacherController::class, 'destroy']); 
-    Route::post('/teachers/assign-to-class', [TeacherController::class, 'assignToClass']); 
+
+    Route::get('/teachers', [TeacherController::class, 'index']);
+    Route::post('/teachers', [TeacherController::class, 'store']);
+    Route::put('/teachers/{id}', [TeacherController::class, 'update']);
+    Route::delete('/teachers/{id}', [TeacherController::class, 'destroy']);
+    Route::post('/teachers/assign-to-class', [TeacherController::class, 'assignToClass']);
     Route::post('/teachers/assign-to-subject', [TeacherController::class, 'assignToSubject']);
     Route::post('/teachers/organize-exam', [TeacherController::class, 'organizeExam']);
 
-    Route::get('/students', [StudentController::class, 'index']); 
-    Route::post('/students', [StudentController::class, 'store']); 
-    Route::get('/students/{id}', [StudentController::class, 'show']); 
-    Route::put('/students/{id}', [StudentController::class, 'update']); 
-    Route::delete('/students/{id}', [StudentController::class, 'destroy']); 
-    Route::post('/students/add-to-class', [StudentController::class, 'addToClass']); 
+    Route::get('/students', [StudentController::class, 'index']);
+    Route::post('/students', [StudentController::class, 'store']);
+    Route::get('/students/{id}', [StudentController::class, 'show']);
+    Route::put('/students/{id}', [StudentController::class, 'update']);
+    Route::delete('/students/{id}', [StudentController::class, 'destroy']);
+    Route::post('/students/add-to-class', [StudentController::class, 'addToClass']);
     Route::get('/students/{studentId}/exam-history', [StudentController::class, 'examHistory']);
-
-
-
-   
-
 });
