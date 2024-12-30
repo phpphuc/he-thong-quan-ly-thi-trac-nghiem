@@ -38,6 +38,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/exams', [ExamController::class, 'index']);
     Route::get('/exams/{id}', [ExamController::class, 'showExam']);
     Route::post('/exams', [ExamController::class, 'createExam']);
+    Route::get('/students/{id}/exams', [ExamController::class, 'getExamsForStudent']);
 
     Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam']);
 
