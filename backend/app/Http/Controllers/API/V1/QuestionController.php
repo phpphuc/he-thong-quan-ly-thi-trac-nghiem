@@ -18,9 +18,10 @@ class QuestionController extends Controller
     {
         $validated = $request->validate([
             'subject_id' => 'required|string',
+            'subject_name' => 'required|string',                           
             'teacher_id' => 'required|integer',
             'question' => 'required|string',
-            'level' => 'required|string|in:EASY,NORMAL,HARD',
+            'level' => 'required|string|in:Nhận biết,Thông hiểu,Vận dụng',
             'rightanswer' => 'required|string',
             'answer_a' => 'required|string',
             'answer_b' => 'required|string',
@@ -43,9 +44,10 @@ class QuestionController extends Controller
 
         $validated = $request->validate([
             'subject_id' => 'sometimes|string',
+            'subject_name' => 'sometimes|string',
             'teacher_id' => 'sometimes|integer',
             'question' => 'sometimes|string',
-            'level' => 'sometimes|string|in:EASY,NORMAL,HARD',
+            'level' => 'sometimes|string|in:Nhận biết,Thông hiểu,Vận dụng',
             'rightanswer' => 'sometimes|string',
             'answer_a' => 'sometimes|string',
             'answer_b' => 'sometimes|string',
