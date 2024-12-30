@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { FaCaretDown, FaUserEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { TypeOutline } from "lucide-react";
 
 const Header = ({
   isSidebarOpen,
@@ -10,7 +9,7 @@ const Header = ({
   onSearch,
   searchPlaceholder = "Tìm kiếm",
 }) => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { FaEdit, FaCheck } from "react-icons/fa";
 import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
@@ -7,17 +7,21 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const QuestionAdjustment = () => {
-  const initialData = {
-    subject_id: "",
-    teacher_id: 0,
-    question: "",
-    level: "EASY",
-    rightanswer: "A",
-    answer_a: "",
-    answer_b: "",
-    answer_c: "",
-    answer_d: "",
-  };
+  const initialData = useMemo(
+    () => ({
+      subject_id: "1",
+      subject_name: "",
+      teacher_id: 0,
+      question: "",
+      level: "Nhận biết",
+      rightanswer: "A",
+      answer_a: "",
+      answer_b: "",
+      answer_c: "",
+      answer_d: "",
+    }),
+    []
+  );
 
   const [formData, setFormData] = useState(initialData);
   const [selectedAnswer, setSelectedAnswer] = useState("A");
@@ -43,17 +47,32 @@ const QuestionAdjustment = () => {
     fetchQuestions();
   }, []);
 
+  // Filter để chỉ lấy đúng những trường dữ liệu giống như initialData
+  const filterQuestionData = useCallback(
+    (questionData) => {
+      return Object.keys(initialData).reduce((acc, key) => {
+        acc[key] =
+          questionData[key] !== undefined
+            ? questionData[key]
+            : initialData[key];
+        return acc;
+      }, {});
+    },
+    [initialData]
+  );
+
   useEffect(() => {
     if (questions.length > 0) {
       const foundQuestion = questions.find(
         (question) => question.id === parseInt(id, 10)
       );
       if (foundQuestion) {
-        setFormData(foundQuestion);
+        const filteredData = filterQuestionData(foundQuestion);
+        setFormData(filteredData);
         setSelectedAnswer(foundQuestion.rightanswer);
       }
     }
-  }, [questions, id]);
+  }, [questions, id, filterQuestionData]);
 
   const handleAnswerChange = (answer) => {
     setSelectedAnswer(answer);
@@ -98,7 +117,6 @@ const QuestionAdjustment = () => {
         bgColor: "green",
         icon: <IoCheckmarkDone />,
       });
-      console.log(formData);
     } catch (error) {
       setNotification({
         isVisible: true,
@@ -121,9 +139,20 @@ const QuestionAdjustment = () => {
       <div className="overflow-x-auto max-h-[500px] bg-white rounded-2xl">
         <div className="px-12 py-6">
           <div className="mb-6">
+            <span className="font-semibold">Tên môn học: </span>
+            <input
+              type="text"
+              value={formData.subject_name}
+              onChange={(e) =>
+                setFormData({ ...formData, subject_name: e.target.value })
+              }
+              className="border border-gray-300 rounded px-2 py-1 w-96 mb-3 font-semibold"
+              placeholder="Nhập tên môn học"
+            />
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-semibold">
+                  <span className="font-semibold">Câu hỏi: </span>
                   <input
                     type="text"
                     value={formData.question}
@@ -144,9 +173,9 @@ const QuestionAdjustment = () => {
                   }
                   className="border border-gray-300 rounded px-2 py-1"
                 >
-                  <option value="EASY">EASY</option>
-                  <option value="NORMAL">NORMAL</option>
-                  <option value="HARD">HARD</option>
+                  <option value="Nhận biết">Nhận biết</option>
+                  <option value="Thông hiểu">Thông hiểu</option>
+                  <option value="Vận dụng">Vận dụng</option>
                 </select>
               </div>
             </div>

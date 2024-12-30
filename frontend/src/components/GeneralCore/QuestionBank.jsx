@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
@@ -19,7 +19,6 @@ const QuestionBank = ({ searchQuery }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
-  const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
@@ -47,25 +46,11 @@ const QuestionBank = ({ searchQuery }) => {
     }
   };
 
-  // const fetchSubjects = async () => {
-  //   try {
-  //     const response = await axios.get("http://127.0.0.1:8000/api/v1/subjects");
-  //     setSubjects(response.data);
-  //   } catch (err) {
-  //     console.log(err.message || "Error fetching subjects");
-  //   }
-  // };
-
   useEffect(() => {
     fetchQuestions();
-    // fetchSubjects();
   }, []);
 
-  useEffect(() => {
-    filterQuestions();
-  }, [filterValue, typeValue, searchQuery, questions]);
-
-  const filterQuestions = () => {
+  const filterQuestions = useCallback(() => {
     let filtered = [...questions];
 
     // Lọc theo tìm kiếm
@@ -79,7 +64,7 @@ const QuestionBank = ({ searchQuery }) => {
     if (filterValue !== "default") {
       if (filterValue === "monhoc") {
         filtered = filtered.sort((a, b) =>
-          a.subject_id.localeCompare(b.subject_id)
+          a.subject_name.localeCompare(b.subject_name)
         );
       } else if (filterValue === "ngaytao") {
         filtered = filtered.sort(
@@ -94,7 +79,11 @@ const QuestionBank = ({ searchQuery }) => {
     }
 
     setFilteredQuestions(filtered);
-  };
+  }, [filterValue, questions, searchQuery, typeValue]);
+
+  useEffect(() => {
+    filterQuestions();
+  }, [filterValue, typeValue, searchQuery, questions, filterQuestions]);
 
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
@@ -169,9 +158,9 @@ const QuestionBank = ({ searchQuery }) => {
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Độ khó --</option>
-            <option value="EASY">EASY</option>
-            <option value="NORMAL">NORMAL</option>
-            <option value="HARD">HARD</option>
+            <option value="Nhận biết">Nhận biết</option>
+            <option value="Thông hiểu">Thông hiểu</option>
+            <option value="Vận dụng">Vận dụng</option>
           </select>
           <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
@@ -216,7 +205,7 @@ const QuestionBank = ({ searchQuery }) => {
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.question}</td>
-                <td className="px-4 py-2 text-center">{item.subject_id}</td>
+                <td className="px-4 py-2 text-center">{item.subject_name}</td>
                 <td className="px-4 py-2 text-center">{item.created_at}</td>
                 <td className="px-4 py-2 text-center">{item.level}</td>
                 <td className="px-4 py-2 text-center">
