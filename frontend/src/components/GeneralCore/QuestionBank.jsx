@@ -14,10 +14,12 @@ import Notification from "../common/Notification";
 import axios from "axios";
 import "../../assets/customCSS/LoadingEffect.css";
 
-const QuestionBank = () => {
+const QuestionBank = ({ searchQuery }) => {
   const [questions, setQuestions] = useState([]);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
+  const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
@@ -25,6 +27,7 @@ const QuestionBank = () => {
     isVisible: false,
     message: "",
   });
+
   const filterRef = useRef(null);
   const typeRef = useRef(null);
   const navigate = useNavigate();
@@ -36,6 +39,7 @@ const QuestionBank = () => {
         "http://127.0.0.1:8000/api/v1/questions"
       );
       setQuestions(response.data);
+      setFilteredQuestions(response.data);
     } catch (err) {
       console.log(err.message || "Something went wrong");
     } finally {
@@ -43,9 +47,54 @@ const QuestionBank = () => {
     }
   };
 
+  const fetchSubjects = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/v1/subjects");
+      setSubjects(response.data);
+    } catch (err) {
+      console.log(err.message || "Error fetching subjects");
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
+    fetchSubjects();
   }, []);
+
+  useEffect(() => {
+    filterQuestions();
+  }, [filterValue, typeValue, searchQuery, questions]);
+
+  const filterQuestions = () => {
+    let filtered = [...questions];
+
+    // Lọc theo tìm kiếm
+    if (searchQuery) {
+      filtered = filtered.filter((question) =>
+        question.question.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Lọc theo môn học hoặc ngày tạo
+    if (filterValue !== "default") {
+      if (filterValue === "monhoc") {
+        filtered = filtered.sort((a, b) =>
+          a.subject_id.localeCompare(b.subject_id)
+        );
+      } else if (filterValue === "ngaytao") {
+        filtered = filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+      }
+    }
+
+    // Lọc theo độ khó
+    if (typeValue !== "default") {
+      filtered = filtered.filter((question) => question.level === typeValue);
+    }
+
+    setFilteredQuestions(filtered);
+  };
 
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
@@ -60,6 +109,7 @@ const QuestionBank = () => {
   const handleReset = () => {
     setFilterValue("default");
     setTypeValue("default");
+    setFilteredQuestions(questions);
   };
 
   const handleDeleteClick = (questionId) => {
@@ -110,7 +160,6 @@ const QuestionBank = () => {
           >
             <option value="default">-- Tất cả --</option>
             <option value="monhoc">Môn học</option>
-            <option value="lophoc">Tên bài thi</option>
             <option value="ngaytao">Ngày tạo</option>
           </select>
           <select
@@ -119,9 +168,10 @@ const QuestionBank = () => {
             onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
-            <option value="default">-- Loại kỳ thi --</option>
-            <option value="thirieng">Thi riêng</option>
-            <option value="thitaptrung">Thi tập trung</option>
+            <option value="default">-- Độ khó --</option>
+            <option value="EASY">EASY</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="HARD">HARD</option>
           </select>
           <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
@@ -162,7 +212,7 @@ const QuestionBank = () => {
             </tr>
           </thead>
           <tbody>
-            {questions.map((item) => (
+            {filteredQuestions.map((item) => (
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.question}</td>
@@ -190,7 +240,10 @@ const QuestionBank = () => {
       </div>
 
       <div className="flex items-center justify-between mt-4">
-        <div>Hiển thị 01-09 trong số 30</div>
+        <div>
+          Hiển thị {filteredQuestions.length > 0 ? "1" : "0"}-
+          {filteredQuestions.length} trong số {filteredQuestions.length}
+        </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
             <MdKeyboardArrowLeft />

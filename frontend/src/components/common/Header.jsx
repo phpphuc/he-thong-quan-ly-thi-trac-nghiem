@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { FaCaretDown, FaUserEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate, Navigate, replace } from "react-router-dom";
 
-const Header = ({ isSidebarOpen, setSidebarOpen }) => {
+const Header = ({
+  isSidebarOpen,
+  setSidebarOpen,
+  onSearch,
+  searchPlaceholder = "Tìm kiếm",
+}) => {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleSearch = useCallback(
+    (e) => {
+      if (onSearch) {
+        onSearch(e.target.value);
+      }
+    },
+    [onSearch]
+  );
 
   const handleLogout = () => {
     logout();
@@ -54,7 +68,8 @@ const Header = ({ isSidebarOpen, setSidebarOpen }) => {
             <input
               type="text"
               className="w-96 pl-10 pr-4 py-2 border border-gray-300 rounded-full bg-gray-100 focus:outline-none focus:border-blue-500"
-              placeholder="Tìm kiếm"
+              placeholder={searchPlaceholder}
+              onChange={handleSearch}
             />
           </div>
         </div>
