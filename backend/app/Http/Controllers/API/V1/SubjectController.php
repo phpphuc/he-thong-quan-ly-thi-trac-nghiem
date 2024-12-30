@@ -13,11 +13,11 @@ class SubjectController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'  => 'required|string|max:255'
+            'subject_name'  => 'required|string|max:255'
         ]);
 
         $subject = Subject::create([
-            'name' => $request->name
+            'subject_name' => $request->subject_name
         ]);
 
         return response()->json([
@@ -32,11 +32,11 @@ class SubjectController extends Controller
         $subject = Subject::findOrFail($id);
 
         $request->validate([
-            'name'  => 'sometimes|string|max:255'
+            'subject_name'  => 'sometimes|string|max:255'
         ]);
 
         if ($request->has('name')) {
-            $subject->name = $request->name;
+            $subject->subject_name = $request->subject_name;
         }
 
         $subject->save();
@@ -68,7 +68,7 @@ class SubjectController extends Controller
         $subject = Subject::findOrFail($id);
         $class = Classroom::findOrFail($request->class_id);
 
-        
+        $class->subject_id = $subject->id;
         $class->save();
 
         return response()->json([
@@ -87,7 +87,7 @@ class SubjectController extends Controller
         $subject = Subject::findOrFail($id);
         $exam = Exam::findOrFail($request->exam_id);
 
-        
+        $exam->subject_id = $subject->id;
         $exam->save();
 
         return response()->json([
