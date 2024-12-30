@@ -43,9 +43,11 @@ class DatabaseSeeder extends Seeder
         $subjects = [
             [
                 "subject_name" => "Anh văn 1",
+                "teacher_id" => "1",
             ],
             [
                 "subject_name" => "Anh văn 2",
+                "teacher_id" => "1",
             ]
         ];
         foreach ($subjects as $subject) {
