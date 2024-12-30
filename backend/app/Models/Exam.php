@@ -14,6 +14,7 @@ class Exam extends Model
 
         'name',
         'subject_id',
+        'subject_name',
         'teacher_id',
         'time',
         'examtype',
