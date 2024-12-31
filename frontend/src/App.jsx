@@ -14,6 +14,7 @@ import TeacherPage from "./components/pages/TeacherPage/TeacherPage";
 import QuestionDetail from "./components/pages/TeacherPage/QuestionDetail";
 import EditQuestion from "./components/pages/TeacherPage/EditQuestion";
 import CreateNewQuestion from "./components/pages/TeacherPage/CreateNewQuestion";
+import ExamDetail from "./components/pages/TeacherPage/ExamPage/ExamDetail";
 import CreateExam from "./components/pages/TeacherPage/ExamPage/CreateExam";
 
 function App() {
@@ -44,7 +45,8 @@ function App() {
                 <Route path="cauhoi/:id" element={<QuestionDetail />} />
                 <Route path="chinhsuacauhoi/:id" element={<EditQuestion />} />
                 <Route path="taomoicauhoi" element={<CreateNewQuestion />} />
-                <Route path="taomoikythi" element={<CreateExam/>}/>
+                <Route path="chitietkythi" element={<ExamDetail/>}/>
+                <Route path="chinhsuakythi" element={<CreateExam/>}/>
               </Routes>
             </ProtectedRoute>
           }

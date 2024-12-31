@@ -61,56 +61,56 @@ const Examinations = ({ searchQuery }) => {
   //   // fetchSubjects();
   // }, []);
 
-  // useEffect(() => {
-  //   filterQuestions();
-  // }, [filterValue, typeValue, searchQuery, questions]);
+  useEffect(() => {
+    filterQuestions();
+  }, [filterValue, typeValue, searchQuery, questions]);
 
-  // const filterQuestions = () => {
-  //   let filtered = [...questions];
+  const filterQuestions = () => {
+    let filtered = [...questions];
 
-  //   // Lọc theo tìm kiếm
-  //   if (searchQuery) {
-  //     filtered = filtered.filter((question) =>
-  //       question.question.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   }
+    // Lọc theo tìm kiếm
+    if (searchQuery) {
+      filtered = filtered.filter((question) =>
+        question.question.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  //   // Lọc theo môn học hoặc ngày tạo
-  //   if (filterValue !== "default") {
-  //     if (filterValue === "monhoc") {
-  //       filtered = filtered.sort((a, b) =>
-  //         a.subject_id.localeCompare(b.subject_id)
-  //       );
-  //     } else if (filterValue === "ngaytao") {
-  //       filtered = filtered.sort(
-  //         (a, b) => new Date(b.created_at) - new Date(a.created_at)
-  //       );
-  //     }
-  //   }
+    // Lọc theo môn học hoặc ngày tạo
+    if (filterValue !== "default") {
+      if (filterValue === "monhoc") {
+        filtered = filtered.sort((a, b) =>
+          a.subject_id.localeCompare(b.subject_id)
+        );
+      } else if (filterValue === "ngaytao") {
+        filtered = filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+      }
+    }
 
-  //   // Lọc theo độ khó
-  //   if (typeValue !== "default") {
-  //     filtered = filtered.filter((question) => question.level === typeValue);
-  //   }
+    // Lọc theo độ khó
+    if (typeValue !== "default") {
+      filtered = filtered.filter((question) => question.level === typeValue);
+    }
 
-  //   setFilteredQuestions(filtered);
-  // };
+    setFilteredQuestions(filtered);
+  };
 
-  // const handleChangeFilter = (e) => {
-  //   setFilterValue(e.target.value);
-  //   filterRef.current.blur();
-  // };
+  const handleChangeFilter = (e) => {
+    setFilterValue(e.target.value);
+    filterRef.current.blur();
+  };
 
-  // const handleChangeType = (e) => {
-  //   setTypeValue(e.target.value);
-  //   typeRef.current.blur();
-  // };
+  const handleChangeType = (e) => {
+    setTypeValue(e.target.value);
+    typeRef.current.blur();
+  };
 
-  // const handleReset = () => {
-  //   setFilterValue("default");
-  //   setTypeValue("default");
-  //   setFilteredQuestions(questions);
-  // };
+  const handleReset = () => {
+    setFilterValue("default");
+    setTypeValue("default");
+    setFilteredQuestions(questions);
+  };
 
   // const handleDeleteClick = (questionId) => {
   //   setSelectedQuestionId(questionId);
@@ -153,9 +153,9 @@ const Examinations = ({ searchQuery }) => {
           <CiFilter size={24} />
           <span className="font-medium">Lọc theo</span>
           <select
-            // value={filterValue}
-            // ref={filterRef}
-            // onChange={handleChangeFilter}
+            value={filterValue}
+            ref={filterRef}
+            onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Môn học --</option>
@@ -163,9 +163,9 @@ const Examinations = ({ searchQuery }) => {
             <option value="ngaytao">OOAD</option>
           </select>
           <select
-            // value={typeValue}
-            // ref={typeRef}
-            // onChange={handleChangeType}
+            value={typeValue}
+            ref={typeRef}
+            onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Loại --</option>
@@ -175,7 +175,7 @@ const Examinations = ({ searchQuery }) => {
           </select>
           <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
-            // onClick={handleReset}
+            onClick={handleReset}
           >
             <FaUndo className="ml-2 text-red-500" />
             <span className="px-2 text-red-500 font-medium">Hoàn tác</span>
@@ -183,7 +183,7 @@ const Examinations = ({ searchQuery }) => {
         </div>
         <div>
           <button
-            onClick={() => navigate("/giangvien/taomoikythi")}
+            onClick={() => navigate("/giangvien/chitietkythi")}
             className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50"
           >
             Tạo mới
@@ -191,13 +191,13 @@ const Examinations = ({ searchQuery }) => {
         </div>
       </div>
 
-      {/* <Notification
+      <Notification
         message={notification.message}
         isVisible={notification.isVisible}
         onClose={() => setNotification({ ...notification, isVisible: false })}
         bgColor={notification.bgColor}
         icon={notification.icon}
-      /> */}
+      />
 
       <div className="overflow-x-auto max-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
@@ -213,37 +213,42 @@ const Examinations = ({ searchQuery }) => {
           </thead>
           <tbody>
             {/* {filteredQuestions.map((item) => (
-              <tr key={item.id} className="border-b">
-                <td className="px-4 py-2 text-center">{item.id}</td>
+              <tr key={item.id} className="border-b"> */}
+                {/* <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.question}</td>
                 <td className="px-4 py-2 text-center">{item.subject_id}</td>
                 <td className="px-4 py-2 text-center">{item.created_at}</td>
-                <td className="px-4 py-2 text-center">{item.level}</td>
+                <td className="px-4 py-2 text-center">{item.level}</td> */}
+                <td className="px-4 py-2 text-center">E001</td>
+                <td className="px-4 py-2 text-center">IT005.212</td>
+                <td className="px-4 py-2 text-center">OOP</td>
+                <td className="px-4 py-2 text-center">01 December 2024</td>
+                <td className="px-4 py-2 text-center">Thi riêng</td>
                 <td className="px-4 py-2 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                    onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
+                    // onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
                   >
                     <IoInformationCircle size={24} />
                   </button>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-                    onClick={() => handleDeleteClick(item.id)}
+                    // onClick={() => handleDeleteClick(item.id)}
                   >
                     <IoTrashSharp size={24} />
                   </button>
                 </td>
-              </tr>
-            ))} */}
+              {/* </tr>
+            ))}  */}
           </tbody>
         </table>
       </div>
 
       <div className="flex items-center justify-between mt-4">
-        {/* <div>
+        <div>
           Hiển thị {filteredQuestions.length > 0 ? "1" : "0"}-
           {filteredQuestions.length} trong số {filteredQuestions.length}
-        </div> */}
+        </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
             <MdKeyboardArrowLeft />

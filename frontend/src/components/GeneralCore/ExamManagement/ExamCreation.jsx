@@ -6,6 +6,8 @@ import {
   IoInformationCircle,
   IoTrashSharp,
   IoCheckmarkDone,
+  IoArrowBackCircleOutline,
+  IoArrowBackOutline,
 } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -61,56 +63,56 @@ const ExamCreation = ({ searchQuery }) => {
   //   // fetchSubjects();
   // }, []);
 
-  // useEffect(() => {
-  //   filterQuestions();
-  // }, [filterValue, typeValue, searchQuery, questions]);
+  useEffect(() => {
+    filterQuestions();
+  }, [filterValue, typeValue, searchQuery, questions]);
 
-  // const filterQuestions = () => {
-  //   let filtered = [...questions];
+  const filterQuestions = () => {
+    let filtered = [...questions];
 
-  //   // Lọc theo tìm kiếm
-  //   if (searchQuery) {
-  //     filtered = filtered.filter((question) =>
-  //       question.question.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   }
+    // Lọc theo tìm kiếm
+    if (searchQuery) {
+      filtered = filtered.filter((question) =>
+        question.question.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  //   // Lọc theo môn học hoặc ngày tạo
-  //   if (filterValue !== "default") {
-  //     if (filterValue === "monhoc") {
-  //       filtered = filtered.sort((a, b) =>
-  //         a.subject_id.localeCompare(b.subject_id)
-  //       );
-  //     } else if (filterValue === "ngaytao") {
-  //       filtered = filtered.sort(
-  //         (a, b) => new Date(b.created_at) - new Date(a.created_at)
-  //       );
-  //     }
-  //   }
+    // Lọc theo môn học hoặc ngày tạo
+    if (filterValue !== "default") {
+      if (filterValue === "monhoc") {
+        filtered = filtered.sort((a, b) =>
+          a.subject_id.localeCompare(b.subject_id)
+        );
+      } else if (filterValue === "ngaytao") {
+        filtered = filtered.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+      }
+    }
 
-  //   // Lọc theo độ khó
-  //   if (typeValue !== "default") {
-  //     filtered = filtered.filter((question) => question.level === typeValue);
-  //   }
+    // Lọc theo độ khó
+    if (typeValue !== "default") {
+      filtered = filtered.filter((question) => question.level === typeValue);
+    }
 
-  //   setFilteredQuestions(filtered);
-  // };
+    setFilteredQuestions(filtered);
+  };
 
-  // const handleChangeFilter = (e) => {
-  //   setFilterValue(e.target.value);
-  //   filterRef.current.blur();
-  // };
+  const handleChangeFilter = (e) => {
+    setFilterValue(e.target.value);
+    filterRef.current.blur();
+  };
 
-  // const handleChangeType = (e) => {
-  //   setTypeValue(e.target.value);
-  //   typeRef.current.blur();
-  // };
+  const handleChangeType = (e) => {
+    setTypeValue(e.target.value);
+    typeRef.current.blur();
+  };
 
-  // const handleReset = () => {
-  //   setFilterValue("default");
-  //   setTypeValue("default");
-  //   setFilteredQuestions(questions);
-  // };
+  const handleReset = () => {
+    setFilterValue("default");
+    setTypeValue("default");
+    setFilteredQuestions(questions);
+  };
 
   // const handleDeleteClick = (questionId) => {
   //   setSelectedQuestionId(questionId);
@@ -153,9 +155,9 @@ const ExamCreation = ({ searchQuery }) => {
           <CiFilter size={24} />
           <span className="font-medium">Lọc theo</span>
           <select
-            // value={filterValue}
-            // ref={filterRef}
-            // onChange={handleChangeFilter}
+            value={filterValue}
+            ref={filterRef}
+            onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Môn học --</option>
@@ -163,9 +165,9 @@ const ExamCreation = ({ searchQuery }) => {
             <option value="ngaytao">OOAD</option>
           </select>
           <select
-            // value={typeValue}
-            // ref={typeRef}
-            // onChange={handleChangeType}
+            value={typeValue}
+            ref={typeRef}
+            onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Loại --</option>
@@ -175,20 +177,29 @@ const ExamCreation = ({ searchQuery }) => {
           </select>
           <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
-            // onClick={handleReset}
+            onClick={handleReset}
           >
             <FaUndo className="ml-2 text-red-500" />
             <span className="px-2 text-red-500 font-medium">Hoàn tác</span>
           </button>
-        </div>
-        <div>
+          </div>
+          <div className="flex items-center space-x-4">
+          <button
+            onClick={() => window.history.back()}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+            <div className="flex items-center justify-center">
+              <IoArrowBackOutline size={20} className="mr-1" />
+              Quay lại
+            </div>
+          </button>
           <button
             // onClick={() => navigate("/giangvien/taomoicauhoi")}
             className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50"
           >
             Thêm vào
           </button>
-        </div>
+          </div>
+
       </div>
 
       {/* <Notification
@@ -212,38 +223,43 @@ const ExamCreation = ({ searchQuery }) => {
             </tr>
           </thead>
           <tbody>
-            {/* {filteredQuestions.map((item) => (
-              <tr key={item.id} className="border-b">
-                <td className="px-4 py-2 text-center">{item.id}</td>
+             {/* {filteredQuestions.map((item) => (
+              <tr key={item.id} className="border-b"> */}
+                {/* <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.question}</td>
                 <td className="px-4 py-2 text-center">{item.subject_id}</td>
                 <td className="px-4 py-2 text-center">{item.created_at}</td>
-                <td className="px-4 py-2 text-center">{item.level}</td>
+                <td className="px-4 py-2 text-center">{item.level}</td> */}
+                <td className="px-4 py-2 text-center">1</td>
+                <td className="px-4 py-2 text-center">Đề OOP</td>
+                <td className="px-4 py-2 text-center">OOP</td>
+                <td className="px-4 py-2 text-center">01 December 2024</td>
+                <td className="px-4 py-2 text-center">Thi cuối kỳ</td>
                 <td className="px-4 py-2 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                    onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
+                    // onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
                   >
                     <IoInformationCircle size={24} />
                   </button>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-                    onClick={() => handleDeleteClick(item.id)}
+                    // onClick={() => handleDeleteClick(item.id)}
                   >
                     <IoTrashSharp size={24} />
                   </button>
                 </td>
-              </tr>
-            ))} */}
+              {/* </tr>
+            ))}  */}
           </tbody>
         </table>
       </div>
 
       <div className="flex items-center justify-between mt-4">
-        {/* <div>
+        <div>
           Hiển thị {filteredQuestions.length > 0 ? "1" : "0"}-
           {filteredQuestions.length} trong số {filteredQuestions.length}
-        </div> */}
+        </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
             <MdKeyboardArrowLeft />
