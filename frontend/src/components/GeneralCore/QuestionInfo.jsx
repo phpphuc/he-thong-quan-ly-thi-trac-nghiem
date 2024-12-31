@@ -1,14 +1,57 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit, FaCheck } from "react-icons/fa";
-import { IoTrashSharp, IoArrowBackOutline } from "react-icons/io5";
+import {
+  IoTrashSharp,
+  IoArrowBackOutline,
+  IoCheckmarkDone,
+} from "react-icons/io5";
+import { ShieldX } from "lucide-react";
+import DeleteModal from "../common/DeleteModal";
+import Notification from "../common/Notification";
 import axios from "axios";
 
 const QuestionInfo = () => {
   const { id } = useParams();
   const [questions, setQuestions] = useState([]);
   const [questionDetail, setQuestionDetail] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedQuestionId, setSelectedQuestionId] = useState(null);
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: "",
+  });
   const navigate = useNavigate();
+
+  const handleDeleteClick = (questionId) => {
+    setSelectedQuestionId(questionId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async (questionId) => {
+    try {
+      await axios.delete(
+        `http://127.0.0.1:8000/api/v1/questions/${questionId}`
+      );
+      setNotification({
+        isVisible: true,
+        message: "Xóa câu hỏi thành công!",
+        bgColor: "green",
+        icon: <IoCheckmarkDone />,
+      });
+      setIsDeleteModalOpen(false);
+      window.history.back();
+    } catch (err) {
+      console.log(err.message || "Error deleting question");
+      setNotification({
+        isVisible: true,
+        message: "Đã xảy ra lỗi khi xóa câu hỏi! Hãy thử lại sau.",
+        bgColor: "red",
+        icon: <ShieldX />,
+      });
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -53,21 +96,42 @@ const QuestionInfo = () => {
             </button>
           </div>
           <div>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300">
+            <button
+              onClick={() => handleDeleteClick(id)}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
+            >
               <IoTrashSharp size={24} />
             </button>
           </div>
         </div>
       </div>
 
+      <Notification
+        message={notification.message}
+        isVisible={notification.isVisible}
+        onClose={() => setNotification({ ...notification, isVisible: false })}
+        bgColor={notification.bgColor}
+        icon={notification.icon}
+      />
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        questionId={selectedQuestionId}
+      />
+
       {/* Chi tiết câu hỏi */}
       <div className="overflow-x-auto max-h-[500px] bg-white rounded-2xl">
         <div className="px-12 py-6">
           <div className="mb-6">
+            <h2 className="font-semibold mb-2">
+              Tên môn học: <span>{questionDetail?.subject_name}</span>
+            </h2>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-semibold">
-                  <span>{questionDetail?.question}</span>
+                  Câu hỏi: <span>{questionDetail?.question}</span>
                 </h2>
               </div>
               <div className="mr-4">

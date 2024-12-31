@@ -9,9 +9,10 @@ import axios from "axios";
 const QuestionCreation = () => {
   const initialData = {
     subject_id: "1",
+    subject_name: "",
     teacher_id: 1,
     question: "",
-    level: "EASY",
+    level: "Nhận biết",
     rightanswer: "",
     answer_a: "",
     answer_b: "",
@@ -61,6 +62,7 @@ const QuestionCreation = () => {
     }
 
     try {
+      console.log("formData to create question: ", formData);
       await axios.post(`http://127.0.0.1:8000/api/v1/questions`, formData);
       setNotification({
         isVisible: true,
@@ -88,9 +90,6 @@ const QuestionCreation = () => {
             type="text"
             value={formData.question}
             placeholder=""
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
             disabled
             className="border border-gray-300 rounded px-2 py-1"
           />
@@ -102,17 +101,15 @@ const QuestionCreation = () => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-semibold">
-                  <input
-                    type="text"
-                    value={formData.question}
-                    onChange={(e) =>
-                      setFormData({ ...formData, question: e.target.value })
-                    }
-                    className="border border-gray-300 rounded px-2 py-1 w-96"
-                    placeholder="Nhập câu hỏi"
-                  />
-                </h2>
+                <input
+                  type="text"
+                  value={formData.question}
+                  onChange={(e) =>
+                    setFormData({ ...formData, question: e.target.value })
+                  }
+                  className="border border-gray-300 rounded px-2 py-1 w-96 font-semibold"
+                  placeholder="Nhập câu hỏi"
+                />
               </div>
               <div className="mr-4 flex items-center">
                 <p className="font-semibold mr-2">Độ khó:</p>
@@ -123,12 +120,21 @@ const QuestionCreation = () => {
                   }
                   className="border border-gray-300 rounded px-2 py-1"
                 >
-                  <option value="EASY">EASY</option>
-                  <option value="NORMAL">NORMAL</option>
-                  <option value="HARD">HARD</option>
+                  <option value="Nhận biết">Nhận biết</option>
+                  <option value="Thông hiểu">Thông hiểu</option>
+                  <option value="Vận dụng">Vận dụng</option>
                 </select>
               </div>
             </div>
+            <input
+              type="text"
+              value={formData.subject_name}
+              onChange={(e) =>
+                setFormData({ ...formData, subject_name: e.target.value })
+              }
+              className="border border-gray-300 rounded px-2 py-1 font-semibold mb-6"
+              placeholder="Nhập tên môn học"
+            />
             <div>
               {["A", "B", "C", "D"].map((letter) => (
                 <div key={letter} className="mb-3 flex items-center">
