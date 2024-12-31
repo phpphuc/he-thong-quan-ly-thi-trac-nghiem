@@ -6,9 +6,9 @@ const ProtectedRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   // Nếu không có user, điều hướng đến trang đăng nhập
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
+  // if (!user) {
+  //   return <Navigate to="/" replace />;
+  // }
 
   // Đã đăng nhập
   return children;

@@ -9,12 +9,12 @@ import {
 } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import DeleteModal from "../common/DeleteModal";
-import Notification from "../common/Notification";
+import DeleteModal from "../../common/DeleteModal";
+import Notification from "../../common/Notification";
 import axios from "axios";
-import "../../assets/customCSS/LoadingEffect.css";
+import "../../../assets/customCSS/LoadingEffect.css";
 
-const Examinations = ({ searchQuery }) => {
+const ExamCreation = ({ searchQuery }) => {
   const [questions, setQuestions] = useState([]);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [filterValue, setFilterValue] = useState("default");
@@ -146,7 +146,7 @@ const Examinations = ({ searchQuery }) => {
     <div className="loader w-[50px] h-[50px] bg-gray-100 py-5 font-nunito absolute top-1/3 left-1/2 "></div>
   ) : (
     <div className="w-full h-full px-12 mx-auto bg-gray-100 py-5 font-nunito">
-      <h1 className="text-2xl font-bold mb-4">Quản lý kỳ thi</h1>
+      <h1 className="text-2xl font-bold mb-4">Chọn đề cho kỳ thi</h1>
 
       <div className="flex items-center my-5 justify-between">
         <div className="flex items-center space-x-4">
@@ -183,10 +183,10 @@ const Examinations = ({ searchQuery }) => {
         </div>
         <div>
           <button
-            onClick={() => navigate("/giangvien/taomoikythi")}
+            // onClick={() => navigate("/giangvien/taomoicauhoi")}
             className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50"
           >
-            Tạo mới
+            Thêm vào
           </button>
         </div>
       </div>
@@ -204,10 +204,10 @@ const Examinations = ({ searchQuery }) => {
           <thead>
             <tr className="text-center">
               <th className="px-4 py-2">ID</th>
-              <th className="px-4 py-2">Tên kỳ thi</th>
+              <th className="px-4 py-2">Tên bộ đề</th>
               <th className="px-4 py-2">Môn học</th>
               <th className="px-4 py-2">Ngày tạo</th>
-              <th className="px-4 py-2">Loại</th>
+              <th className="px-4 py-2">Cấu trúc</th>
               <th className="px-4 py-2 text-center">Thao tác</th>
             </tr>
           </thead>
@@ -264,4 +264,4 @@ const Examinations = ({ searchQuery }) => {
   );
 };
 
-export default Examinations;
+export default ExamCreation;
