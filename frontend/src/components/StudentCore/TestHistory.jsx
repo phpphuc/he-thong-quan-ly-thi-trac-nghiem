@@ -1,36 +1,55 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useState, useRef } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-const TestHistory = () => {
+const TestHistory = ({ searchQuery }) => {
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
-  const [data, setData] = useState([]);
+  const filterRef = useRef(null);
+  const typeRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Fetch test history from API
-    const fetchTestHistory = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/v1/results/student/{studentId}");
-        setData(response.data); // Assumes response is an array of test history objects
-      } catch (error) {
-        console.error("Error fetching test history:", error);
-      }
-    };
-
-    fetchTestHistory();
-  }, []);
+  const data = [
+    {
+      id: "00001",
+      test_name: "OOP Exam 1",
+      subject: "OOP",
+      create_at: "2023-11-01",
+      type: "Tập trung",
+    },
+    {
+      id: "00002",
+      test_name: "OOP Exam 2",
+      subject: "OOP",
+      create_at: "2023-12-01",
+      type: "Thi riêng",
+    },
+    {
+      id: "00003",
+      test_name: "Data Structures Quiz",
+      subject: "Data Structures",
+      create_at: "2024-01-15",
+      type: "Tập trung",
+    },
+    {
+      id: "00004",
+      test_name: "Algorithms Final",
+      subject: "Algorithms",
+      create_at: "2024-02-10",
+      type: "Thi riêng",
+    },
+  ];
 
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
+    filterRef.current.blur();
   };
 
   const handleChangeType = (e) => {
     setTypeValue(e.target.value);
+    typeRef.current.blur();
   };
 
   const handleReset = () => {
@@ -42,6 +61,46 @@ const TestHistory = () => {
     navigate(`/sinhvien/tracuu/${testId}`);
   };
 
+  // Filter the data based on the selected filters and search query
+  const filteredData = data
+    .filter((item) => {
+      const matchesSearch =
+        !searchQuery ||
+        item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.subject.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesFilter =
+        filterValue === "default" ||
+        (filterValue === "monhoc" &&
+          item.subject
+            .toLowerCase()
+            .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
+        (filterValue === "lophoc" &&
+          item.test_name
+            .toLowerCase()
+            .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
+        (filterValue === "ngaytao" &&
+          item.create_at.includes(searchQuery ? searchQuery : ""));
+
+      const matchesType =
+        typeValue === "default" ||
+        (typeValue === "thirieng" && item.type === "Thi riêng") ||
+        (typeValue === "thitaptrung" && item.type === "Tập trung");
+
+      return matchesSearch && matchesFilter && matchesType;
+    })
+    .sort((a, b) => {
+      if (filterValue === "ngaytao") {
+        // Sort by create_at, latest first
+        return new Date(b.create_at) - new Date(a.create_at);
+      } else if (filterValue === "monhoc" || filterValue === "lophoc") {
+        // Sort by subject (for monhoc) or test_name (for lophoc)
+        const field = filterValue === "monhoc" ? "subject" : "test_name";
+        return a[field].localeCompare(b[field]);
+      }
+      return 0;
+    });
+
   return (
     <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
       <h1 className="text-2xl font-bold mb-4">Lịch sử bài thi đã làm</h1>
@@ -52,6 +111,7 @@ const TestHistory = () => {
           <span className="font-medium">Lọc theo</span>
           <select
             value={filterValue}
+            ref={filterRef}
             onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
@@ -62,6 +122,7 @@ const TestHistory = () => {
           </select>
           <select
             value={typeValue}
+            ref={typeRef}
             onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
@@ -79,7 +140,7 @@ const TestHistory = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto min-h-[470px] bg-white rounded-2xl">
+      <div className="overflow-x-auto max-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
           <thead>
             <tr className="text-center">
@@ -92,7 +153,7 @@ const TestHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item) => (
+            {filteredData.map((item) => (
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.test_name}</td>
@@ -114,7 +175,9 @@ const TestHistory = () => {
       </div>
 
       <div className="flex items-center justify-between mt-4">
-        <div>Hiển thị 01-09 trong số {data.length}</div>
+        <div>
+          Hiển thị 1-{filteredData.length} trong số {data.length}
+        </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
             <MdKeyboardArrowLeft />
