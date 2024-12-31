@@ -7,8 +7,16 @@ use App\Models\Result;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Student;
+use App\Models\Subject;
 class ExamController extends Controller
 {
+    public function index()
+    {
+        $exams = Exam::all(); // Lấy tất cả các bài thi
+        return response()->json([
+            'exams' => $exams,
+        ], 200);
+    }
     public function createExam(Request $request)
     {
         $validated = $request->validate([
@@ -50,6 +58,12 @@ class ExamController extends Controller
 
         $selectedQuestions = $selectedQuestions->shuffle();
 
+        $subject = Subject::find($validated['subject_id']);
+
+        if (!$subject) {
+            return response()->json(['error' => 'Subject không tồn tại.'], 404);
+     }
+
         $exam = Exam::create([
             'name' => $validated['name'],
             'subject_id' => $validated['subject_id'],
@@ -60,6 +74,7 @@ class ExamController extends Controller
             'Qtype2' => $validated['Qtype2'],
             'Qtype3' => $validated['Qtype3'],
             'Qnumber' => $validated['Qnumber'],
+            'subject_name' => $subject->subject_name,
         ]);
 
         $exam->questions()->attach($selectedQuestions->pluck('id')->toArray());
@@ -75,11 +90,11 @@ class ExamController extends Controller
     $student = Student::findOrFail($id);
 
     // Lấy danh sách lớp học của sinh viên
-    $classrooms = $student->classes()->pluck('id');
+    $classrooms = $student->classes()->pluck('classes.id');
 
     // Lấy danh sách bài thi thuộc các lớp học đó
     $exams = Exam::whereHas('classrooms', function ($query) use ($classrooms) {
-        $query->whereIn('id', $classrooms);
+        $query->whereIn('classes.id', $classrooms);
     })->get();
 
     return response()->json([
