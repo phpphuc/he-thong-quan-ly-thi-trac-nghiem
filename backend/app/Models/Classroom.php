@@ -10,10 +10,10 @@ class Classroom extends Model
     use HasFactory;
 
     protected $table = 'classes'; 
-    protected $primaryKey = 'class_id'; 
+   
 
     protected $fillable = [
-        'class_id',
+       
         'name',
         'subject_id',
         'teacher_id',
@@ -29,7 +29,7 @@ class Classroom extends Model
     }
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
     }
     public function exams()
     {
