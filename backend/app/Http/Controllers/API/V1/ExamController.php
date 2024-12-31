@@ -6,7 +6,7 @@ use App\Models\Exam;
 use App\Models\Result;
 use Illuminate\Http\Request;
 use App\Models\Question;
-
+use App\Models\Student;
 class ExamController extends Controller
 {
     public function createExam(Request $request)
