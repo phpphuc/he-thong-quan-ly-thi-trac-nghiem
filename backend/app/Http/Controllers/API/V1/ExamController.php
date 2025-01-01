@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Student;
 use App\Models\Subject;
+
 class ExamController extends Controller
 {
     public function index()
@@ -62,7 +63,7 @@ class ExamController extends Controller
 
         if (!$subject) {
             return response()->json(['error' => 'Subject không tồn tại.'], 404);
-     }
+        }
 
         $exam = Exam::create([
             'name' => $validated['name'],
@@ -74,7 +75,6 @@ class ExamController extends Controller
             'Qtype2' => $validated['Qtype2'],
             'Qtype3' => $validated['Qtype3'],
             'Qnumber' => $validated['Qnumber'],
-            'subject_name' => $subject->subject_name,
         ]);
 
         $exam->questions()->attach($selectedQuestions->pluck('id')->toArray());
@@ -86,21 +86,38 @@ class ExamController extends Controller
     }
     // danh sách bài thi dành cho sinh viên
     public function getExamsForStudent($id)
-{
-    $student = Student::findOrFail($id);
+    {
+        $student = Student::findOrFail($id);
 
-    // Lấy danh sách lớp học của sinh viên
-    $classrooms = $student->classes()->pluck('classes.id');
+        // Lấy danh sách lớp học của sinh viên
+        $classrooms = $student->classes()->pluck('classes.id');
 
-    // Lấy danh sách bài thi thuộc các lớp học đó
-    $exams = Exam::whereHas('classrooms', function ($query) use ($classrooms) {
-        $query->whereIn('classes.id', $classrooms);
-    })->get();
+        // Lấy danh sách bài thi thuộc các lớp học đó
+        $exams = Exam::whereHas('classrooms', function ($query) use ($classrooms) {
+            $query->whereIn('classes.id', $classrooms);
+        })->get();
 
-    return response()->json([
-        'exams' => $exams,
-    ]);
-}
+        $examDetails = $exams->map(function ($exam) {
+            return [
+                'id' => $exam->id,
+                'name' => $exam->name,
+                'subject' => [
+                    'name' => $exam->subject->name,
+                ],
+                'teacher' => [
+                    'name' => $exam->teacher->user->name,
+                    'email' => $exam->teacher->user->email,
+                ],
+                'time' => $exam->time,
+                'examtype' => $exam->examtype,
+                // 'questions' => $exam->questions->shuffle(),
+            ];
+        });
+
+        return response()->json([
+            'exams' => $examDetails,
+        ]);
+    }
 
     public function showExam($id)
     {
@@ -112,6 +129,15 @@ class ExamController extends Controller
             'exam' => [
                 'id' => $exam->id,
                 'name' => $exam->name,
+                'subject' => [
+                    'id' => $exam->subject->id,
+                    'name' => $exam->subject->name,
+                ],
+                'teacher' => [
+                    'id' => $exam->teacher->id,
+                    'name' => $exam->teacher->user->name,
+                    'email' => $exam->teacher->user->email,
+                ],
                 'time' => $exam->time,
                 'examtype' => $exam->examtype,
                 'questions' => $shuffledQuestions,
