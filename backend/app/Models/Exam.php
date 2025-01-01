@@ -11,10 +11,8 @@ class Exam extends Model
 
 
     protected $fillable = [
-
         'name',
         'subject_id',
-        'subject_name',
         'teacher_id',
         'time',
         'examtype',
@@ -25,11 +23,11 @@ class Exam extends Model
     ];
     public function subject()
     {
-        return $this->belongsTo(Subject::class, 'subject_id', 'id');
+        return $this->belongsTo(Subject::class);
     }
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+        return $this->belongsTo(Teacher::class);
     }
     public function results()
     {
