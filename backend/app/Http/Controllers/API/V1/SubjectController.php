@@ -17,7 +17,7 @@ class SubjectController extends Controller
         ]);
 
         $subject = Subject::create([
-            'subject_name' => $request->subject_name
+            'name' => $request->subject_name
         ]);
 
         return response()->json([
@@ -36,7 +36,7 @@ class SubjectController extends Controller
         ]);
 
         if ($request->has('name')) {
-            $subject->subject_name = $request->subject_name;
+            $subject->name = $request->subject_name;
         }
 
         $subject->save();
