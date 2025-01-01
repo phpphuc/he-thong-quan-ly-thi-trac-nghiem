@@ -9,8 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ClassExam extends Model
 {
     use HasFactory;
+
+    protected $table = 'class_exam';
     protected $fillable = [
-        'class_id', 'exam_id',
+        'class_id',
+        'exam_id',
     ];
     public function classroom()
     {
