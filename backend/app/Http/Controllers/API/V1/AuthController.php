@@ -80,14 +80,27 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('authToken')->plainTextToken;
+        $abilities = [];
+        switch ($user->role) {
+            case 'TEACHER':
+                $abilities = ['view-users', 'view-questions', 'create-questions', 'update-questions', 'delete-questions', 'view-exams', 'create-exams', 'submit-exams', 'view-results', 'create-results', 'update-results', 'view-student-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report'];
+                break;
+            case 'STUDENT':
+                $abilities = ['view-student-exams', 'submit-exams', 'view-student-results'];
+                break;
+            case 'SCHOOLBOARD':
+                $abilities = ['view-users', 'view-questions', 'view-exams', 'create-exams', 'view-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report'];
+                break;
+        }
+
+        $token = $user->createToken('authToken', $abilities)->plainTextToken;
 
         $user->setAttribute('token', $token);
 
         return new UserResource($user);
     }
 
-     public function logout(Request $request)
+    public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
 

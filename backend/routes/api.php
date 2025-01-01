@@ -15,8 +15,10 @@ use App\Http\Controllers\API\V1\StudentController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
-    })->middleware('auth:sanctum');
+        return 'p c';
+        // return $request->user();
+    })->middleware(['auth:sanctum', 'abilities:view-users']);
+
 
     Route::get('/users', [App\Http\Controllers\API\V1\AuthController::class, 'index']);
 
@@ -39,7 +41,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/exams', [ExamController::class, 'index']);
     Route::get('/exams/{id}', [ExamController::class, 'showExam']);
     Route::post('/exams', [ExamController::class, 'createExam']);
-    Route::get('/students/{id}/exams', [ExamController::class, 'getExamsForStudent']);
+    Route::get('/students/{id}/exams', [ExamController::class, 'getExamsForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
 
     Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam']);
 
