@@ -12,26 +12,20 @@ class Exam extends Model
 
     protected $fillable = [
         'name',
-        'subject_id',
-        'teacher_id',
-        'time',
+        'school_board_id',
         'examtype',
-        'Qtype1',
-        'Qtype2',
-        'Qtype3',
-        'Qnumber',
     ];
-    public function subject()
+    public function subjects()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsToMany(Subject::class, 'exam_subject', 'exam_id', 'subject_id');
     }
-    public function teacher()
+    public function teachers()
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsToMany(Teacher::class, 'exam_teacher', 'exam_id', 'teacher_id');
     }
     public function results()
     {
-        return $this->hasMany(Result::class, 'exam_id', 'exam_id');
+        return $this->hasMany(Result::class, 'exam_id', 'id');
     }
     public function questions()
     {
@@ -40,5 +34,9 @@ class Exam extends Model
     public function classrooms()
     {
         return $this->belongsToMany(Classroom::class, 'class_exam', 'exam_id', 'class_id');
+    }
+    public function schoolBoard()
+    {
+        return $this->belongsTo(SchoolBoard::class);
     }
 }
