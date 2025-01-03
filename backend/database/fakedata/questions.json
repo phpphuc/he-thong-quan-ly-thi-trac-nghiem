@@ -1,7 +1,6 @@
  [
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "What is the synonym of 'happy'?",
                 "level" : "Nhận biết",
@@ -13,7 +12,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "Which word is an antonym of 'difficult'?",
                 "level" : "Nhận biết",
@@ -25,7 +23,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "What is the past tense of 'go'?",
                 "level" : "Thông hiểu",
@@ -37,7 +34,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "Which sentence is grammatically correct?",
                 "level" : "Thông hiểu",
@@ -49,7 +45,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "What is the plural form of 'child'?",
                 "level" : "Vận dụng",
@@ -61,7 +56,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "What is the meaning of the idiom 'Break a leg'?",
                 "level" : "Vận dụng",
@@ -73,7 +67,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "Which is a correct spelling?",
                 "level" : "Thông hiểu",
@@ -85,7 +78,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "Which sentence uses the passive voice?",
                 "level" : "Vận dụng",
@@ -97,7 +89,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "What does the word 'ubiquitous' mean?",
                 "level" : "vận dụng",
@@ -109,7 +100,6 @@
             },
             {
                 "subject_id" : "1",
-                "subject_name" : "Anh văn 1",
                 "teacher_id" : 1,
                 "question" : "Which word means 'to speak in a monotonous tone'?",
                 "level" : "Vận dụng",
