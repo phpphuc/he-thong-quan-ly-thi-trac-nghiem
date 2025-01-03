@@ -17,4 +17,12 @@ class SchoolBoard extends Model
     {
         return $this->belongsTo(User::class);
     }
+     public function exams()
+    {
+        return $this->hasMany(Exam::class,'school_board_id', 'id');  
+    }
+    public function results()
+    {
+        return $this->hasManyThrough(Result::class, Exam::class, 'school_board_id', 'exam_id');
+    }
 }
