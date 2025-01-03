@@ -11,15 +11,16 @@ class ExamQuestion extends Model
     protected $table = 'exam_question';
     protected $fillable = [
         'question_id',
+        'exam_id',
     ];
 
     public function exam()
     {
-        return $this->belongsTo(Exam::class);
+        return $this->belongsTo(Exam::class, 'exam_id');
     }
 
     public function question()
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class,'question_id');
     }
 }
