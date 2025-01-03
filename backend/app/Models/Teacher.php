@@ -20,16 +20,20 @@ class Teacher extends Model
 
     public function subjects()
     {
-        return $this->hasMany(Subject::class, 'teacher_id', 'id');
+        return $this->belongsToMany(Subject::class, 'teacher_subject', 'teacher_id', 'subject_id');
     }
 
     public function exams()
     {
-        return $this->hasMany(Exam::class, 'teacher_id', 'id');
+        return $this->belongsToMany(Exam::class, 'exam_teacher', 'teacher_id', 'exam_id');
     }
 
     public function classes()
     {
-        return $this->hasMany(Classroom::class, 'teacher_id', 'id');
+        return $this->belongsToMany(Classroom::class, 'class_teacher', 'teacher_id', 'class_id');
+    }
+    public function questions()
+    {
+    return $this->hasMany(Question::class, 'teacher_id', 'id');
     }
 }
