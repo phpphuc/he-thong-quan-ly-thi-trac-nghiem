@@ -10,8 +10,7 @@ class CreateQuestionsTable extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->string('subject_id');
-            $table->string('subject_name');
+            $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('teacher_id');
             $table->text('question');
             $table->enum('level', ['Nhận biết', 'Thông hiểu', 'Vận dụng']);
@@ -23,6 +22,7 @@ class CreateQuestionsTable extends Migration
             $table->timestamps();
 
             $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade');
+            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
         });
     }
 
