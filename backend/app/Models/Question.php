@@ -11,7 +11,6 @@ class Question extends Model
 
     protected $fillable = [
         'subject_id',
-        'subject_name',
         'teacher_id',
         'question',
         'level',
@@ -24,7 +23,7 @@ class Question extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
     }
     public function subject()
     {
@@ -32,6 +31,6 @@ class Question extends Model
     }
     public function exams()
     {
-        return $this->belongsToMany(Exam::class, 'exam_question');
+        return $this->belongsToMany(Exam::class, 'exam_question', 'question_id',"exam_id");
     }
 }
