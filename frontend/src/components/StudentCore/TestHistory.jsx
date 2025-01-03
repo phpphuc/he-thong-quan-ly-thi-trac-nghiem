@@ -2,12 +2,14 @@ import { useState, useRef } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const TestHistory = () => {
-  const [filterValue, setFilterValue] = useState('default');
-  const [typeValue, setTypeValue] = useState('default');
+  const [filterValue, setFilterValue] = useState("default");
+  const [typeValue, setTypeValue] = useState("default");
   const filterRef = useRef(null);
   const typeRef = useRef(null);
+  const navigate = useNavigate();
 
   // Hàm xử lý thay đổi giá trị filter
   const handleChangeFilter = (e) => {
@@ -23,48 +25,52 @@ const TestHistory = () => {
 
   // Hàm reset các select về giá trị mặc định
   const handleReset = () => {
-    setFilterValue('default');
-    setTypeValue('default');
+    setFilterValue("default");
+    setTypeValue("default");
+  };
+
+  const goToCheck = (testId) => {
+    navigate(`/sinhvien/tracuu/${testId}`);
   };
 
   const data = [
     {
-      id: '00001',
-      test_name: 'IT005.212',
-      subject: 'OOP',
-      create_at: '01 November 2023',
-      type: 'Tập trung',
+      id: "00001",
+      test_name: "IT005.212",
+      subject: "OOP",
+      create_at: "01 November 2023",
+      type: "Tập trung",
     },
     {
-      id: '00002',
-      test_name: 'IT005.199',
-      subject: 'OOP',
-      create_at: '01 December 2023',
-      type: 'Thi riêng',
+      id: "00002",
+      test_name: "IT005.199",
+      subject: "OOP",
+      create_at: "01 December 2023",
+      type: "Thi riêng",
     },
     {
-      id: '00003',
-      test_name: 'IT002.333',
-      subject: 'OOP',
-      create_at: '01 November 2024',
-      type: 'Tập trung',
+      id: "00003",
+      test_name: "IT002.333",
+      subject: "OOP",
+      create_at: "01 November 2024",
+      type: "Tập trung",
     },
   ];
 
   return (
-    <div className="w-full h-full max-w-4xl mx-auto mt-8 bg-gray-100 px-10 py-5 font-nunito">
+    <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
       {/* Tiêu đề */}
       <h1 className="text-2xl font-bold mb-4">Lịch sử bài thi đã làm</h1>
 
       {/* Khu vực lọc */}
-      <div className="flex items-center my-5">  
+      <div className="flex items-center my-5">
         <div className="flex items-center space-x-4">
-          <CiFilter size={24}/>
+          <CiFilter size={24} />
           <span className="font-medium">Lọc theo</span>
-          <select 
+          <select
             value={filterValue}
-            ref={filterRef} 
-            onChange={handleChangeFilter} 
+            ref={filterRef}
+            onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Tất cả --</option>
@@ -72,28 +78,28 @@ const TestHistory = () => {
             <option value="lophoc">Tên bài thi</option>
             <option value="ngaytao">Ngày tạo</option>
           </select>
-          <select 
+          <select
             value={typeValue}
-            ref={typeRef} 
-            onChange={handleChangeType} 
+            ref={typeRef}
+            onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
             <option value="default">-- Loại kỳ thi --</option>
             <option value="thirieng">Thi riêng</option>
             <option value="thitaptrung">Thi tập trung</option>
           </select>
-          <button 
+          <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
             onClick={handleReset}
           >
-            <FaUndo className="ml-2 text-red-500"/>
+            <FaUndo className="ml-2 text-red-500" />
             <span className="px-2 text-red-500 font-medium">Hoàn tác</span>
           </button>
         </div>
       </div>
 
       {/* Bảng danh sách bài thi */}
-      <div className="overflow-x-auto min-h-[500px] bg-white rounded-2xl">
+      <div className="overflow-x-auto min-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
           <thead>
             <tr className="text-center">
@@ -114,7 +120,10 @@ const TestHistory = () => {
                 <td className="px-4 py-2 text-center">{item.create_at}</td>
                 <td className="px-4 py-2 text-center">{item.type}</td>
                 <td className="px-4 py-2 text-center">
-                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+                    onClick={() => goToCheck(item.id)}
+                  >
                     Tra cứu
                   </button>
                 </td>
