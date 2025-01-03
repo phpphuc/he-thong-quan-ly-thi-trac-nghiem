@@ -28,15 +28,15 @@ class SchoolBoardController extends Controller
     }
 
     // Thêm mới một thành viên Ban giám hiệu
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'id' => 'required|uuid|exists:users,id',
-        ]);
+ //public function store(Request $request)
+   // {
+      //  $validated = $request->validate([
+        //    'id' => 'required|uuid|exists:users,id',
+      //  ]);
 
-        $schoolBoard = SchoolBoard::create($validated);
-        return response()->json($schoolBoard, 201);
-    }
+      //  $schoolBoard = SchoolBoard::create($validated);
+      //  return response()->json($schoolBoard, 201);
+  //  }
 
     // Cập nhật thông tin của một thành viên Ban giám hiệu
     public function update(Request $request, $id)
@@ -67,50 +67,50 @@ class SchoolBoardController extends Controller
         $schoolBoard->delete();
         return response()->json(['message' => 'SchoolBoard deleted successfully'], 200);
     }
-    // Tổ chức kỳ thi mới
-    public function createExam(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'subject_id' => 'required|string|exists:subjects,subject_id',
-            'teacher_id' => 'required|int|exists:teachers,teacher_id',
-            'time' => 'required|int|min:1',
-            'examtype' => 'required|in:NORMAL,GENERAL EXAM',
-            'Qtype1' => 'nullable|int|min:0',
-            'Qtype2' => 'nullable|int|min:0',
-            'Qtype3' => 'nullable|int|min:0',
-        ]);
+    
 
-        $validated['Qnumber'] = ($validated['Qtype1'] ?? 0) + ($validated['Qtype2'] ?? 0) + ($validated['Qtype3'] ?? 0);
+    public function exams($schoolBoardId)
+{
+    $schoolBoard = SchoolBoard::find($schoolBoardId);
 
-        $exam = Exam::create($validated);
-        return response()->json($exam, 201);
+    if (!$schoolBoard) {
+        return response()->json(['error' => 'SchoolBoard not found'], 404);
     }
 
-    // Xem danh sách kỳ thi được tổ chức bởi Ban giám hiệu
-    public function exams()
-    {
-        $exams = Exam::all();
-        return response()->json($exams, 200);
-    }
+    $exams = $schoolBoard->exams;  // Truy xuất các kỳ thi mà Ban Giám Hiệu này giám sát
 
-    // Tạo báo cáo chi tiết về kỳ thi
-    public function examReport($examId)
-    {
-        $exam = Exam::find($examId);
+    return response()->json($exams);
+}
 
-        if (!$exam) {
-            return response()->json(['error' => 'Exam not found'], 404);
+    // Tạo báo cáo kết quả kỳ thi của Ban Giám Hiệu
+    public function report($schoolBoardId)
+    {
+        // Tìm SchoolBoard theo ID
+        $schoolBoard = SchoolBoard::find($schoolBoardId);
+
+        if (!$schoolBoard) {
+            return response()->json(['error' => 'SchoolBoard not found'], 404);
         }
 
-        $report = [
-            'exam' => $exam,
-            'total_students' => $exam->results()->count(),
-            'average_score' => $exam->results()->avg('score'),
-            'highest_score' => $exam->results()->max('score'),
-            'lowest_score' => $exam->results()->min('score'),
-        ];
+        // Lấy kết quả thi từ tất cả các kỳ thi mà SchoolBoard giám sát
+        $results = $schoolBoard->results()->with('exam', 'student')->get();
 
-        return response()->json($report, 200);
+        if ($results->isEmpty()) {
+            return response()->json(['message' => 'No results found for this school board'], 404);
+        }
+
+        // Tính toán báo cáo kết quả
+        $averageScore = $results->avg('score');
+        $highestScore = $results->max('score');
+        $lowestScore = $results->min('score');
+
+        return response()->json([
+            'school_board_id' => $schoolBoardId,
+            'total_results' => $results->count(),
+            'average_score' => $averageScore,
+            'highest_score' => $highestScore,
+            'lowest_score' => $lowestScore,
+            'results' => $results
+        ]);
     }
 }
