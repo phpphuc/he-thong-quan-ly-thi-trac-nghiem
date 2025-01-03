@@ -27,15 +27,15 @@ class StudentController extends Controller
     }
 
     // Tạo mới sinh viên
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'id' => 'required|uuid|exists:users,id',
-        ]);
+   // public function store(Request $request)
+   // {
+     //   $validatedData = $request->validate([
+       //     'id' => 'required|uuid|exists:users,id',
+     //   ]);
 
-        $student = Student::create($validatedData);
-        return response()->json(['success' => true, 'data' => $student], 201);
-    }
+     //   $student = Student::create($validatedData);
+    //    return response()->json(['success' => true, 'data' => $student], 201);
+   // }
 
     // Cập nhật thông tin sinh viên
     public function update(Request $request, $id)
@@ -65,29 +65,30 @@ class StudentController extends Controller
         return response()->json(['success' => true, 'message' => 'Student deleted successfully'], 200);
     }
 
-    // Liên kết sinh viên với lớp học
-    public function addToClass(Request $request)
-    {
-        $validatedData = $request->validate([
-            'class_id' => 'required|exists:classes,id',
-            'student_id' => 'required|exists:students,id',
-        ]);
-
-        $classStudent = ClassStudent::create($validatedData);
-        return response()->json(['success' => true, 'data' => $classStudent], 201);
-    }
-
     // Xem lịch sử kết quả thi của sinh viên
     public function examHistory($studentId)
     {
-        $results = Result::with('exam')
-            ->where('student_id', $studentId)
-            ->get();
+        $results = Result::with(['exam.subjects', 'exam.teachers']) // Bổ sung thông tin chi tiết
+        ->where('student_id', $studentId)
+        ->paginate(10); // Phân trang
 
-        if ($results->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'No results found for this student'], 404);
-        }
-
-        return response()->json(['success' => true, 'data' => $results], 200);
+    if ($results->isEmpty()) {
+        return response()->json(['success' => false, 'message' => 'No results found for this student'], 404);
     }
+
+    return response()->json(['success' => true, 'data' => $results], 200);
+    }
+
+    // Lấy danh sách các lớp học mà sinh viên thuộc về
+public function getClasses($studentId)
+{
+    $student = Student::find($studentId);
+
+    if (!$student) {
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+    }
+
+    $classes = $student->classes()->get(); // Quan hệ giữa Student và Class
+    return response()->json(['success' => true, 'data' => $classes], 200);
+}
 }
