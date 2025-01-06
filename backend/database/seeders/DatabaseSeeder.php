@@ -96,17 +96,7 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        $classStudents = [
-            [
-                'class_id' => 1,
-                'student_ids' => [1,2,3],
-            ],
-            [
-                'class_id' => 2,
-                'student_ids' => [4,5,6],
-            ],
-           
-        ];
+      
 
         $classStudents = [
             ['class_id' => 1, 'student_ids' => [1, 2, 3]],
@@ -120,5 +110,6 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+        
     }
 }
