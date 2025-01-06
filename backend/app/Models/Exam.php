@@ -17,7 +17,7 @@ class Exam extends Model
     ];
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'exam_subject', 'exam_id', 'subject_id');
+         return $this->belongsToMany(Subject::class, 'exam_subject', 'exam_id', 'subject_id')->withPivot('time', 'Qtype1', 'Qtype2', 'Qtype3', 'Qnumber');
     }
     public function teachers()
     {
