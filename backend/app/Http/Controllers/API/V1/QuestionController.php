@@ -4,12 +4,13 @@ namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Models\ExamQuestion;
 use App\Models\Subject;
 use App\Http\Controllers\API\V1\Controller;
 
 class QuestionController extends Controller
 {
-   // Lấy danh sách câu hỏi
+    // Lấy danh sách câu hỏi
     public function index()
     {
         // Load câu hỏi kèm thông tin môn học
@@ -84,30 +85,19 @@ class QuestionController extends Controller
             'answer_c' => 'sometimes|string',
             'answer_d' => 'sometimes|string',
         ]);
+        $updateData = $validated;
 
-        $subject = Subject::find($validated['subject_id']);
+        
+// Cập nhật subject_name nếu có subject_id
+if (isset($validated['subject_id'])) {
+    $subject = Subject::find($validated['subject_id']);
+    if (!$subject) {
+        return response()->json(['error' => 'Subject không tồn tại.'], 404);
+    }
+    $updateData['subject_name'] = $subject->name;
+}
 
-        if (!$subject) {
-            return response()->json(['error' => 'Subject không tồn tại.'], 404);
-     }
-
-
-        $question->update([
-            'subject_id' => $validated['subject_id'],
-            'teacher_id' => $validated['teacher_id'],
-            'question' => $validated['question'],
-            'level' => $validated['level'],
-            'rightanswer' => $validated['rightanswer'],
-            'answer_a' => $validated['answer_a'],
-            'answer_b' => $validated['answer_b'],
-            'answer_c' => $validated['answer_c'],
-            'answer_d' => $validated['answer_d'],
-            
-        ]);
-
-        // Thêm tên môn học vào dữ liệu trả về
-        //$question->subject_name = $validated['subject_name'] ?? $question->subject_name;
-        $question->subject_name = isset($subject) ? $subject->name : $question->subject_name;
+$question->update($updateData);
         return response()->json(['message' => 'Question updated successfully', 'data' => $question], 200);
     }
     //xóa câu hỏi
@@ -115,13 +105,22 @@ class QuestionController extends Controller
     {
         $question = Question::find($id);
 
-        if (!$question) {
-            return response()->json(['message' => 'Question not found'], 404);
-        }
-
-        $question->delete();
-
-        return response()->json(['message' => 'Question deleted successfully'], 200);
+    if (!$question) {
+        return response()->json(['message' => 'Question not found'], 404);
     }
 
+    // Kiểm tra nếu câu hỏi đã được liên kết với kỳ thi
+    $examQuestions = ExamQuestion::where('question_id', $id)->exists();
+    
+    if ($examQuestions) {
+        return response()->json(['error' => 'Câu hỏi đã được liên kết với kỳ thi, không thể xóa'], 422);
+    }
+
+    // Xóa câu hỏi nếu chưa được liên kết với kỳ thi
+    $question->delete();
+
+    return response()->json(['message' => 'Question deleted successfully'], 200);
+    }
+
+    
 }
