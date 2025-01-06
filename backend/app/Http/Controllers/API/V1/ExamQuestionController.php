@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use Illuminate\Http\Request;
 use App\Models\Exam;
 use App\Models\Question;
+use App\Models\ExamQuestion;
 use Illuminate\Support\Facades\DB;
 
 class ExamQuestionController extends Controller
@@ -14,100 +15,99 @@ class ExamQuestionController extends Controller
     {
         $exam = Exam::findOrFail($exam_id);
 
-        $request->validate([
-            'question_ids' => 'required|array',
-            'question_ids.*' => 'exists:questions,id'
-        ]);
-    
-        // Lấy danh sách ID các môn học liên kết với kỳ thi và số lượng câu hỏi của mỗi loại
-        $subjects = $exam->subjects()->withPivot('Qtype1', 'Qtype2', 'Qtype3', 'Qnumber')->get();
-    
-        // Tạo một mảng để theo dõi số lượng câu hỏi đã gán cho từng loại câu hỏi của mỗi môn học
-        $questionsCountByType = [];
-    
-        foreach ($subjects as $subject) {
-            // Khởi tạo các loại câu hỏi
-            $questionsCountByType[$subject->id] = [
-                'Qtype1' => 0,
-                'Qtype2' => 0,
-                'Qtype3' => 0,
-            ];
+    // Kiểm tra nếu user là giáo viên
+    if (!auth()->user()->hasRole('TEACHER')) {
+        return response()->json(['error' => 'Bạn không có quyền thêm câu hỏi'], 403);
+    }
+
+    // Lấy danh sách các môn học mà giáo viên đang dạy
+    $teacherSubjects = auth()->user()->subjects->pluck('id')->toArray();
+
+    // Kiểm tra các môn học trong kỳ thi
+    $examSubjects = $exam->subjects()->pluck('id')->toArray();
+
+    // Xác nhận giáo viên có quyền thêm câu hỏi vào kỳ thi
+    if (!array_intersect($teacherSubjects, $examSubjects)) {
+        return response()->json(['error' => 'Bạn không có quyền thêm câu hỏi vào các môn học trong kỳ thi này'], 403);
+    }
+
+    $request->validate([
+        'question_ids' => 'required|array',
+        'question_ids.*' => 'exists:questions,id'
+    ]);
+
+    // Lấy danh sách câu hỏi cần liên kết
+    $questions = Question::whereIn('id', $request->question_ids)->get();
+
+    $invalidQuestions = [];
+    $newExamQuestions = [];
+    $questionsCountByType = [];
+
+    // Khởi tạo bộ đếm số lượng câu hỏi theo loại
+    foreach ($exam->subjects as $subject) {
+        $questionsCountByType[$subject->id] = [
+            'Qtype1' => 0,
+            'Qtype2' => 0,
+            'Qtype3' => 0,
+        ];
+    }
+
+    foreach ($questions as $question) {
+        $subjectId = $question->subject_id;
+
+        // Kiểm tra câu hỏi thuộc môn học trong kỳ thi và giáo viên đang dạy
+        if (!in_array($subjectId, $examSubjects) || !in_array($subjectId, $teacherSubjects)) {
+            $invalidQuestions[] = $question->id;
+            continue;
         }
-    
-        // Lấy danh sách câu hỏi cần liên kết
-        $questions = Question::whereIn('id', $request->question_ids)->get();
-    
-        // Kiểm tra xem câu hỏi có thuộc về các môn học liên quan không và đếm số lượng theo loại
-        $invalidQuestions = [];
-        foreach ($questions as $question) {
-            if (!in_array($question->subject_id, $subjects->pluck('id')->toArray())) {
-                $invalidQuestions[] = $question->id;
-            } else {
-                // Tăng số lượng câu hỏi cho loại phù hợp
-                $subjectId = $question->subject_id;
-                if ($question->level == 'Nhận biết') {
-                    $questionsCountByType[$subjectId]['Qtype1']++;
-                } elseif ($question->level == 'Thông hiểu') {
-                    $questionsCountByType[$subjectId]['Qtype2']++;
-                } elseif ($question->level == 'Vận dụng') {
-                    $questionsCountByType[$subjectId]['Qtype3']++;
-                }
-            }
+
+        // Xác định loại câu hỏi
+        $questionType = match ($question->level) {
+            'Nhận biết' => 'Qtype1',
+            'Thông hiểu' => 'Qtype2',
+            'Vận dụng' => 'Qtype3',
+            default => null,
+        };
+
+        // Tăng bộ đếm số lượng câu hỏi
+        if ($questionType) {
+            $questionsCountByType[$subjectId][$questionType]++;
         }
-    
-        // Kiểm tra số lượng câu hỏi cho mỗi loại không vượt quá giới hạn
-        foreach ($subjects as $subject) {
-            $subjectId = $subject->id;
-            if ($questionsCountByType[$subjectId]['Qtype1'] > $subject->pivot->Qtype1) {
-                return response()->json([
-                    'error' => 'Số câu hỏi Qtype1 vượt quá số lượng cho môn học: ' . $subject->name
-                ], 422);
-            }
-            if ($questionsCountByType[$subjectId]['Qtype2'] > $subject->pivot->Qtype2) {
-                return response()->json([
-                    'error' => 'Số câu hỏi Qtype2 vượt quá số lượng cho môn học: ' . $subject->name
-                ], 422);
-            }
-            if ($questionsCountByType[$subjectId]['Qtype3'] > $subject->pivot->Qtype3) {
-                return response()->json([
-                    'error' => 'Số câu hỏi Qtype3 vượt quá số lượng cho môn học: ' . $subject->name
-                ], 422);
-            }
-        }
-    
-        // Nếu có câu hỏi không hợp lệ, trả về lỗi
-        if (!empty($invalidQuestions)) {
+
+        // Kiểm tra giới hạn số lượng câu hỏi
+        $subjectPivot = $exam->subjects()->where('subjects.id', $subjectId)->first()->pivot;
+        if ($questionsCountByType[$subjectId][$questionType] > $subjectPivot->{$questionType}) {
             return response()->json([
-                'error' => 'Một hoặc nhiều câu hỏi không thuộc về các môn học liên quan đến kỳ thi.',
-                'invalid_question_ids' => $invalidQuestions,
+                'error' => 'Số câu hỏi ' . $questionType . ' vượt quá giới hạn cho môn ' . $subjectPivot->name,
             ], 422);
         }
-    
-        // Liên kết các câu hỏi với kỳ thi
-        $exam->questions()->sync($request->question_ids);
-    
-        // Trả về thông tin kỳ thi và các câu hỏi theo môn học
+
+        // Thêm câu hỏi hợp lệ vào danh sách
+        $newExamQuestions[] = [
+            'exam_id' => $exam_id,
+            'subject_id' => $subjectId,
+            'question_id' => $question->id,
+        ];
+    }
+
+    // Xử lý câu hỏi không hợp lệ
+    if (!empty($invalidQuestions)) {
         return response()->json([
-            'message' => 'Câu hỏi đã được liên kết với kỳ thi thành công!',
-            'exam' => $exam,
-            'subjects_with_questions' => $exam->subjects->map(function ($subject) {
-                return [
-                    'subject_name' => $subject->name,
-                    'questions' => $subject->questions->map(function ($question) {
-                        return [
-                            'question_id' => $question->id,
-                            'question_text' => $question->question,
-                            'level' => $question->level,
-                            'answer_a' => $question->answer_a,
-                            'answer_b' => $question->answer_b,
-                            'answer_c' => $question->answer_c,
-                            'answer_d' => $question->answer_d,
-                            'rightanswer' => $question->rightanswer,
-                        ];
-                    })
-                ];
-            })
-        ]);
+            'error' => 'Một hoặc nhiều câu hỏi không hợp lệ.',
+            'invalid_question_ids' => $invalidQuestions,
+        ], 422);
+    }
+
+    // Lưu vào bảng exam_question
+    foreach ($newExamQuestions as $examQuestion) {
+        ExamQuestion::create($examQuestion);
+    }
+
+    return response()->json([
+        'message' => 'Câu hỏi đã được liên kết thành công!',
+        'exam_id' => $exam_id,
+        'questions_linked' => $newExamQuestions,
+    ]);
     }
 
     // Xem các câu hỏi đã được liên kết với kỳ thi
@@ -146,38 +146,19 @@ class ExamQuestionController extends Controller
     // Xóa liên kết câu hỏi khỏi kỳ thi
     public function detachQuestions(Request $request, $exam_id)
     {
-        $exam = Exam::findOrFail($exam_id);
+        // Kiểm tra đầu vào
+    $request->validate([
+        'question_ids' => 'required|array',
+        'question_ids.*' => 'exists:questions,id'
+    ]);
 
-        $request->validate([
-            'question_ids' => 'required|array',
-            'question_ids.*' => 'exists:questions,id'
-        ]);
-    
-        // Lấy danh sách ID các môn học liên kết với kỳ thi
-        $subjectIds = $exam->subjects()->pluck('subjects.id')->toArray();
-    
-        // Lấy danh sách câu hỏi cần xóa
-        $questions = Question::whereIn('id', $request->question_ids)->get();
-    
-        // Kiểm tra xem câu hỏi có thuộc về các môn học liên quan không
-        $invalidQuestions = $questions->filter(function ($question) use ($subjectIds) {
-            return !in_array($question->subject_id, $subjectIds);
-        });
-    
-        if ($invalidQuestions->isNotEmpty()) {
-            return response()->json([
-                'error' => 'Một hoặc nhiều câu hỏi không thuộc về các môn học liên quan đến kỳ thi.',
-                'invalid_question_ids' => $invalidQuestions->pluck('id')->toArray(),
-            ], 422);
-        }
-    
-        // Sử dụng giao dịch để đảm bảo tính toàn vẹn
-        DB::transaction(function () use ($exam, $request) {
-            $exam->questions()->detach($request->question_ids);
-        });
-    
-        return response()->json([
-            'message' => 'Câu hỏi đã được xoá khỏi kỳ thi!'
-        ]);
+    // Xóa liên kết câu hỏi với kỳ thi
+    ExamQuestion::where('exam_id', $exam_id)
+        ->whereIn('question_id', $request->question_ids)
+        ->delete();
+
+    return response()->json([
+        'message' => 'Liên kết giữa các câu hỏi và kỳ thi đã được xóa thành công!'
+    ]);
     }
 }
