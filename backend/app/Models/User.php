@@ -66,4 +66,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(SchoolBoard::class);
     }
+    public function hasRole($role)
+{
+    return $this->role === $role;
+}
 }
