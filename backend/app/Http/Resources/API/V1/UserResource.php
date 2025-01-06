@@ -17,11 +17,14 @@ class UserResource extends JsonResource
         // return parent::toArray($request);
         return [
             //'type' => 'users',
-            'type' => (string) $this->role,
+            'type' => $this->role,
             'id' => (string) $this->id,
             'attributes' => [
                 'name' => $this->name,
                 'email' => $this->email,
+                'phone'=>$this->phone,
+                'address'=>$this->address,
+                'birth_date'=>$this->birth_date,
                 // 'created_at' => $this->created_at,
                 // 'updated_at' => $this->updated_at,
                 'token' => $this->when(isset($this->token), $this->token),
