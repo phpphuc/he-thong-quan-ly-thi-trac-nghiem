@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\API\V1\QuestionController;
 use App\Http\Controllers\API\V1\SubjectController;
 use App\Http\Controllers\API\V1\ExamController;
@@ -38,7 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::delete('/questions/{id}', [QuestionController::class, 'destroy']);// Xóa câu hỏi
     
     Route::get('/exams', [ExamController::class, 'index']);// Lấy tất cả các kỳ thi
-    Route::middleware(['auth:sanctum', 'role:school_board,teacher'])
+    Route::middleware(['auth:sanctum'])
     ->post('/exams', [ExamController::class, 'createExam']);// Tạo một kỳ thi mới
     Route::get('/students/{id}/exams', [ExamController::class, 'getExamsForStudent']);// Lấy danh sách bài thi dành cho sinh viên
     Route::get('/exams/{id}', [ExamController::class, 'showExam']);// Lấy thông tin chi tiết kỳ thi
@@ -60,7 +59,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/school-boards/{schoolBoardId}/exams', [SchoolBoardController::class, 'exams']);// Lấy danh sách các kỳ thi mà thành viên Ban giám hiệu giám sát
     Route::get('/school-boards/{schoolBoardId}/report', [SchoolBoardController::class, 'report']);// Tạo báo cáo kết quả kỳ thi của Ban giám hiệu
 
-    Route::middleware(['auth:sanctum', RoleMiddleware::class . ':teacher'])
+    Route::middleware(['auth:sanctum'])
     ->post('/exams/{examId}/attach-questions', [ExamQuestionController::class, 'attachQuestions']);// Liên kết câu hỏi với kỳ thi
     Route::get('/exams/{exam_id}/show-questions', [ExamQuestionController::class, 'showQuestions']);// Xem các câu hỏi đã được liên kết với kỳ thi
     Route::post('/exams/{exam_id}/detach-questions', [ExamQuestionController::class, 'detachQuestions']);// Xóa liên kết câu hỏi khỏi kỳ thi
