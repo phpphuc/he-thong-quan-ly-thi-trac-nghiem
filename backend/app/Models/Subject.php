@@ -23,10 +23,14 @@ class Subject extends Model
     }
     public function exams()
     {
-        return $this->belongsToMany(Exam::class, 'exam_subject', 'subject_id', 'exam_id');
+         return $this->belongsToMany(Exam::class, 'exam_subject', 'subject_id', 'exam_id')->withPivot(['time', 'Qtype1', 'Qtype2', 'Qtype3', 'Qnumber']);
     }
     public function teachers()
     {
         return $this->belongsToMany(Teacher::class, 'teacher_subject', 'subject_id', 'teacher_id');
+    }
+    public function examQuestions()
+    {
+        return $this->hasMany(ExamQuestion::class, 'subject_id', 'id');
     }
 }
