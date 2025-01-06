@@ -27,8 +27,8 @@ class ClassStudentController extends Controller
     {
         $validated = $request->validate([
             'class_id' => 'required|exists:classes,id',
-            'student_ids' => 'required|array', // Cho phép danh sách ID sinh viên
-            'student_ids.*' => 'exists:students,id', // Kiểm tra từng ID
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id',
         ]);
     
         $classId = $validated['class_id'];
@@ -36,8 +36,23 @@ class ClassStudentController extends Controller
     
         $addedStudents = [];
         $alreadyInClass = [];
+        $conflictingStudents = []; // Mảng lưu sinh viên có lớp khác cùng môn học
     
         foreach ($studentIds as $studentId) {
+            // Kiểm tra nếu sinh viên đã học lớp khác của cùng môn học
+            $existingClass = ClassStudent::where('student_id', $studentId)
+                ->whereHas('class', function ($query) use ($classId) {
+                    $query->where('subject_id', $classId);
+                })
+                ->exists();
+    
+            if ($existingClass) {
+                // Thông báo và bỏ qua sinh viên này
+                $conflictingStudents[] = $studentId;
+                continue;
+            }
+    
+            // Kiểm tra xem sinh viên đã tham gia lớp học này chưa
             $exists = ClassStudent::where('class_id', $classId)
                 ->where('student_id', $studentId)
                 ->exists();
@@ -57,6 +72,7 @@ class ClassStudentController extends Controller
             'message' => 'Thêm sinh viên vào lớp học hoàn tất.',
             'added_students' => $addedStudents,
             'already_in_class' => $alreadyInClass,
+            'conflicting_students' => $conflictingStudents, // Trả về danh sách sinh viên có lớp khác cùng môn học
         ]);
     }
 
