@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
 use App\Models\Subject;
+use App\Models\Result;
 use App\Models\Classroom;
 use App\Models\Exam;
 
@@ -65,12 +66,28 @@ class SubjectController extends Controller
     public function destroy($id)
     {
         $subject = Subject::findOrFail($id);
-        $subject->teachers()->detach();  // Xóa mối quan hệ giữa môn học và giáo viên trước khi xóa môn học
-        $subject->delete();
+    $subject->examQuestions()->delete(); // Xóa các câu hỏi trong các kỳ thi
+    Result::where('exam_subject_id', $subject->id)->delete(); // Xóa kết quả thi của môn học này
+        // Xóa tất cả các câu hỏi liên quan đến môn học này
+    $subject->questions()->delete();
 
-        return response()->json([
-            'message' => 'Môn học đã được xoá thành công!',
-        ]);
+    // Xóa tất cả các lớp học thuộc môn học này
+    $subject->classes()->each(function ($class) {
+        $class->teachers()->detach(); // Xóa mối quan hệ giữa lớp và giáo viên
+        $class->delete(); // Xóa lớp học
+    });
+    // Xóa môn học khỏi tất cả kỳ thi
+    $subject->exams()->detach();
+
+    // Xóa mối quan hệ giữa môn học và giáo viên
+    $subject->teachers()->detach();
+
+    // Xóa môn học
+    $subject->delete();
+
+    return response()->json([
+        'message' => 'Môn học và các lớp học liên quan đã được xoá thành công!',
+    ]);
     }
 
     // Lấy danh sách các giáo viên giảng dạy một môn học
@@ -84,48 +101,68 @@ class SubjectController extends Controller
         ]);
     }
 
-    // Liên kết môn học với các lớp học
-    public function linkClass(Request $request, $id)
-    {
-        // Xác thực dữ liệu
-    $request->validate([
-        'class_ids' => 'required|array',  // Dữ liệu đầu vào là mảng các class_id
-        'class_ids.*' => 'exists:classes,id',  // Kiểm tra từng class_id có tồn tại trong bảng classes
+    
+
+    // Liên kết môn học với nhiều kỳ thi
+    public function linkExam(Request $request, $subjectId)
+{
+    $validated = $request->validate([
+        'exam_ids' => 'required|array',
+        'exam_ids.*' => 'exists:exams,id',
+        'details' => 'required|array',
+        'details.*.exam_id' => 'required|exists:exams,id',
+        'details.*.time' => 'required|integer|min:1',
+        'details.*.Qtype1' => 'required|integer|min:0',
+        'details.*.Qtype2' => 'required|integer|min:0',
+        'details.*.Qtype3' => 'required|integer|min:0',
+        'details.*.Qnumber' => 'required|integer|min:1',
     ]);
 
-    // Tìm môn học theo ID
-    $subject = Subject::findOrFail($id);
+    $subject = Subject::findOrFail($subjectId);
 
-    // Lặp qua từng lớp học và cập nhật trường subject_id
-    foreach ($request->class_ids as $class_id) {
-        $class = Classroom::findOrFail($class_id);
-        $class->subject_id = $subject->id;  // Gán subject_id cho lớp học
-        $class->save();  // Lưu lại thay đổi
+    // Chuẩn bị dữ liệu để liên kết môn học với kỳ thi
+    $examData = [];
+    $existingExams = []; // Lưu kỳ thi đã có
+    $newExams = []; // Lưu kỳ thi hợp lệ để thêm mới
+
+    foreach ($validated['details'] as $detail) {
+        $examId = $detail['exam_id'];
+
+        // Kiểm tra nếu môn học đã được liên kết với kỳ thi này
+        $isLinked = $subject->exams()->where('exams.id', $examId)->exists();
+        if ($isLinked) {
+            $existingExams[] = $examId;
+            continue; // Bỏ qua nếu đã liên kết
+        }
+
+        // Kiểm tra tổng số câu hỏi
+        $totalQuestions = $detail['Qtype1'] + $detail['Qtype2'] + $detail['Qtype3'];
+        if ($totalQuestions != $detail['Qnumber']) {
+            return response()->json([
+                'error' => 'Tổng số câu hỏi không khớp với số lượng câu hỏi đã chỉ định cho kỳ thi: ' . $examId
+            ], 422);
+        }
+
+        // Chuẩn bị dữ liệu liên kết mới
+        $examData[$examId] = [
+            'time' => $detail['time'],
+            'Qtype1' => $detail['Qtype1'],
+            'Qtype2' => $detail['Qtype2'],
+            'Qtype3' => $detail['Qtype3'],
+            'Qnumber' => $detail['Qnumber'],
+        ];
+        $newExams[] = $examId;
     }
+
+    // Liên kết môn học với các kỳ thi mới
+    $subject->exams()->syncWithoutDetaching($examData);
 
     return response()->json([
-        'message' => 'Các lớp học đã được liên kết với môn học thành công!',
-        'subject' => $subject,
-        'classes' => Classroom::whereIn('id', $request->class_ids)->get(),  // Trả về danh sách các lớp học đã liên kết
+        'message' => count($newExams) > 0 
+            ? 'Môn học đã được liên kết với các kỳ thi mới thành công!'
+            : 'Không có kỳ thi mới nào được liên kết.',
+        'existing_exams' => $existingExams,
+        'linked_exams' => $subject->exams()->withPivot('time', 'Qtype1', 'Qtype2', 'Qtype3', 'Qnumber')->get(),
     ]);
-    }
-
-    // Liên kết môn học với kỳ thi
-    public function linkExam(Request $request, $id)
-    {
-        $request->validate([
-            'exam_ids' => 'required|array',
-            'exam_ids.*' => 'exists:exams,id',
-        ]);
-
-        $subject = Subject::findOrFail($id);
-        $subject->exams()->sync($request->exam_ids);
-        
-
-        return response()->json([
-            'message' => 'Môn học đã được liên kết với kỳ thi thành công!',
-            'subject' => $subject,
-            'exams'   => $subject->exams,
-        ]);
-    }
+}
 }
