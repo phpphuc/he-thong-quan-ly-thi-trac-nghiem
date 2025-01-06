@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import GeneralSidebar from "../../common/GeneralSidebar";
 import Header from "../../common/Header";
@@ -5,6 +6,7 @@ import QuestionInfo from "../../GeneralCore/QuestionInfo";
 
 const QuestionDetail = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const { id } = useParams();
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -20,12 +22,10 @@ const QuestionDetail = () => {
             setSidebarOpen={setSidebarOpen}
           />
           <div className="bg-gray-100 rounded-lg shadow-sm mb-6">
-            <QuestionInfo />
+            <QuestionInfo id={id} />
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-export default QuestionDetail;

@@ -13,6 +13,11 @@ class Result extends Model
         'exam_id',
         'student_id',
         'score',
+        'start_time',
+        'exam_subject_id',
+    ];
+    protected $dates = [
+        'start_time',  
     ];
     public function exam()
     {
@@ -22,5 +27,9 @@ class Result extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+    public function examSubject()
+    {
+        return $this->belongsTo('App\Models\ExamSubject', 'exam_subject_id', 'id');
     }
 }

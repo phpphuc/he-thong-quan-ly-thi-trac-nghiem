@@ -4,27 +4,44 @@ namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Models\ExamQuestion;
 use App\Models\Subject;
 use App\Http\Controllers\API\V1\Controller;
 
 class QuestionController extends Controller
 {
-   // Lấy danh sách câu hỏi
+    // Lấy danh sách câu hỏi
     public function index()
     {
         // Load câu hỏi kèm thông tin môn học
-    $questions = Question::with('subject')->get();
+        $questions = Question::with('subject')->get();
 
-    // Trả về câu hỏi mà không kèm thông tin môn học đầy đủ
-    $questions = $questions->map(function ($question) {
-        $question->subject_name = $question->subject->name;
-        // Loại bỏ thông tin môn học đầy đủ
-        $question->makeHidden(['subject']);
-        return $question;
-    });
+        // Trả về câu hỏi mà không kèm thông tin môn học đầy đủ
+        $questions = $questions->map(function ($question) {
+            $question->subject_name = $question->subject->name;
+            // Loại bỏ thông tin môn học đầy đủ
+            $question->makeHidden(['subject']);
+            return $question;
+        });
 
-    return response()->json(['data' => $questions], 200);
+        return response()->json(['data' => $questions], 200);
     }
+
+    // Lấy thông tin chi tiết câu hỏi
+    public function show($id)
+    {
+        $question = Question::with('subject')->find($id);
+
+        if (!$question) {
+            return response()->json(['message' => 'Câu hỏi không tồn tại.'], 404);
+        }
+
+        $question->subject_name = $question->subject ? $question->subject->name : null;
+        $question->makeHidden(['subject']);
+
+        return response()->json(['data' => $question], 200);
+    }
+
     // Thêm mới câu hỏi
     public function store(Request $request)
     {
@@ -40,16 +57,14 @@ class QuestionController extends Controller
             'answer_d' => 'required|string',
         ]);
 
-        // Lấy subject_name từ bảng subjects
         $subject = Subject::find($validated['subject_id']);
 
         if (!$subject) {
             return response()->json(['error' => 'Subject không tồn tại.'], 404);
-     }
+        }
 
         $question = Question::create([
             'subject_id' => $validated['subject_id'],
-            'subject_name' => $subject->name,
             'teacher_id' => $validated['teacher_id'],
             'question' => $validated['question'],
             'level' => $validated['level'],
@@ -58,13 +73,13 @@ class QuestionController extends Controller
             'answer_b' => $validated['answer_b'],
             'answer_c' => $validated['answer_c'],
             'answer_d' => $validated['answer_d'],
-            
         ]);
-        
+
         $question->subject_name = $subject->name;
         return response()->json(['message' => 'Question created successfully', 'data' => $question], 201);
     }
-    //cập nhật câu hỏi
+
+    // Cập nhật câu hỏi
     public function update(Request $request, $id)
     {
         $question = Question::find($id);
@@ -85,32 +100,21 @@ class QuestionController extends Controller
             'answer_d' => 'sometimes|string',
         ]);
 
-        $subject = Subject::find($validated['subject_id']);
+        $updateData = $validated;
 
-        if (!$subject) {
-            return response()->json(['error' => 'Subject không tồn tại.'], 404);
-     }
+        if (isset($validated['subject_id'])) {
+            $subject = Subject::find($validated['subject_id']);
+            if (!$subject) {
+                return response()->json(['error' => 'Subject không tồn tại.'], 404);
+            }
+            $updateData['subject_name'] = $subject->name;
+        }
 
-
-        $question->update([
-            'subject_id' => $validated['subject_id'],
-            'teacher_id' => $validated['teacher_id'],
-            'question' => $validated['question'],
-            'level' => $validated['level'],
-            'rightanswer' => $validated['rightanswer'],
-            'answer_a' => $validated['answer_a'],
-            'answer_b' => $validated['answer_b'],
-            'answer_c' => $validated['answer_c'],
-            'answer_d' => $validated['answer_d'],
-            
-        ]);
-
-        // Thêm tên môn học vào dữ liệu trả về
-        //$question->subject_name = $validated['subject_name'] ?? $question->subject_name;
-        $question->subject_name = isset($subject) ? $subject->name : $question->subject_name;
+        $question->update($updateData);
         return response()->json(['message' => 'Question updated successfully', 'data' => $question], 200);
     }
-    //xóa câu hỏi
+
+    // Xóa câu hỏi
     public function destroy($id)
     {
         $question = Question::find($id);
@@ -119,9 +123,16 @@ class QuestionController extends Controller
             return response()->json(['message' => 'Question not found'], 404);
         }
 
+        // Kiểm tra nếu câu hỏi đã được liên kết với kỳ thi
+        $examQuestions = ExamQuestion::where('question_id', $id)->exists();
+
+        if ($examQuestions) {
+            return response()->json(['error' => 'Câu hỏi đã được liên kết với kỳ thi, không thể xóa'], 422);
+        }
+
+        // Xóa câu hỏi nếu chưa được liên kết với kỳ thi
         $question->delete();
 
         return response()->json(['message' => 'Question deleted successfully'], 200);
     }
-
 }

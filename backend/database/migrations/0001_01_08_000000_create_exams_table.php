@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('school_board_id')->nullable();
-            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->enum('examtype', ['NORMAL', 'GENERAL EXAM']);
             $table->timestamps();
             $table->foreign('school_board_id')->references('id')->on('school_boards');

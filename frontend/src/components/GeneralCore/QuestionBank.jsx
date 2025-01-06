@@ -1,3 +1,4 @@
+// Chỉnh sửa QuestionBank.jsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
@@ -37,10 +38,13 @@ const QuestionBank = ({ searchQuery }) => {
       const response = await axios.get(
         "http://127.0.0.1:8000/api/v1/questions"
       );
-      setQuestions(response.data);
-      setFilteredQuestions(response.data);
+      const data = response.data?.data || [];
+      setQuestions(Array.isArray(data) ? data : []);
+      setFilteredQuestions(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.log(err.message || "Something went wrong");
+      console.error("Error fetching questions:", err);
+      setQuestions([]);
+      setFilteredQuestions([]);
     } finally {
       setIsLoading(false);
     }
@@ -116,20 +120,25 @@ const QuestionBank = ({ searchQuery }) => {
         isVisible: true,
         message: "Xóa câu hỏi thành công!",
         bgColor: "green",
-        icon: <IoCheckmarkDone />,
+        icon: <IoCheckmarkDone />, 
       });
       setIsDeleteModalOpen(false);
     } catch (err) {
-      console.log(err.message || "Error deleting question");
+      console.error("Error deleting question:", err);
       setNotification({
         isVisible: true,
         message: "Đã xảy ra lỗi khi xóa câu hỏi! Hãy thử lại sau.",
         bgColor: "red",
-        icon: <ShieldX />,
+        icon: <ShieldX />, 
       });
       setIsDeleteModalOpen(false);
     }
   };
+
+  // Đảm bảo filteredQuestions luôn là mảng trước khi sử dụng
+  const displayQuestions = Array.isArray(filteredQuestions)
+    ? filteredQuestions
+    : [];
 
   return isLoading ? (
     <div className="loader w-[50px] h-[50px] bg-gray-100 py-5 font-nunito absolute top-1/3 left-1/2 "></div>
@@ -201,7 +210,7 @@ const QuestionBank = ({ searchQuery }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredQuestions.map((item) => (
+            {displayQuestions.map((item) => (
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.question}</td>
@@ -230,8 +239,8 @@ const QuestionBank = ({ searchQuery }) => {
 
       <div className="flex items-center justify-between mt-4">
         <div>
-          Hiển thị {filteredQuestions.length > 0 ? "1" : "0"}-
-          {filteredQuestions.length} trong số {filteredQuestions.length}
+          Hiển thị {displayQuestions.length > 0 ? "1" : "0"}-
+          {displayQuestions.length} trong số {displayQuestions.length}
         </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
@@ -242,15 +251,16 @@ const QuestionBank = ({ searchQuery }) => {
           </button>
         </div>
       </div>
-
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        questionId={selectedQuestionId}
-      />
-    </div>
-  );
+      <div className="flex items-center justify-center">
+  <DeleteModal
+    isOpen={isDeleteModalOpen}
+    onClose={() => setIsDeleteModalOpen(false)}
+    onConfirm={handleDeleteConfirm}
+    questionId={selectedQuestionId}
+  />
+</div>
+</div>
+);
 };
 
 export default QuestionBank;

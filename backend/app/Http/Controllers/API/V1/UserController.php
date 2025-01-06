@@ -37,31 +37,20 @@ class UserController
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
-
-        // Kiểm tra dữ liệu đầu vào
+    
+        // Kiểm tra và xác nhận dữ liệu đầu vào
         $validated = $request->validate([
             'name' => 'nullable|string',
             'email' => 'nullable|email|unique:users,email,' . $id,
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
-            'role' => 'nullable|string|in:TEACHER,STUDENT,SCHOOLBOARD',
         ]);
-
+    
         // Cập nhật thông tin người dùng
         $user->update($validated);
-
-       // Kiểm tra và cập nhật bảng liên quan
-    if ($request->filled('role')) {
-        if ($user->role == 'TEACHER' && $user->teacher) {
-            $user->teacher()->update($validated);
-        } elseif ($user->role == 'STUDENT' && $user->student) {
-            $user->student()->update($validated);
-        } elseif ($user->role == 'SCHOOLBOARD' && $user->schoolboard) {
-            $user->schoolboard()->update($validated);
-        }
-    }
-
+    
+        // Kiểm tra lại sau khi cập nhật
         return new UserResource($user);
     }
 

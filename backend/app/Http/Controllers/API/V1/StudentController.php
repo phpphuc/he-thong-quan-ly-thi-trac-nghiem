@@ -26,31 +26,38 @@ class StudentController extends Controller
         return response()->json(['success' => true, 'data' => $student], 200);
     }
 
-    // Tạo mới sinh viên
-   // public function store(Request $request)
-   // {
-     //   $validatedData = $request->validate([
-       //     'id' => 'required|uuid|exists:users,id',
-     //   ]);
-
-     //   $student = Student::create($validatedData);
-    //    return response()->json(['success' => true, 'data' => $student], 201);
-   // }
+    
 
     // Cập nhật thông tin sinh viên
     public function update(Request $request, $id)
     {
         $student = Student::find($id);
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student not found'], 404);
-        }
 
-        $validatedData = $request->validate([
-            'id' => 'sometimes|uuid|exists:users,id',
-        ]);
+    if (!$student) {
+        return response()->json(['error' => 'Student not found'], 404);
+    }
 
-        $student->update($validatedData);
-        return response()->json(['success' => true, 'data' => $student], 200);
+    $validatedData = $request->validate([
+        'user.name' => 'nullable|string',
+        'user.email' => 'nullable|email|unique:users,email,' . $student->user_id,
+        'user.phone' => 'nullable|string',
+        'user.address' => 'nullable|string',
+        'user.birth_date' => 'nullable|date',
+    ]);
+
+    // Cập nhật thông tin sinh viên
+    if (isset($validatedData['user'])) {
+        
+        $user = $student->user;
+
+        // Cập nhật thông tin người dùng
+        $user->update($validatedData['user']);
+
+        // Lưu thông tin người dùng sau khi cập nhật
+        $user->save();
+    }
+
+    return response()->json(['success' => true, 'data' => $student->load('user')], 200);
     }
 
     // Xoá sinh viên
@@ -60,15 +67,23 @@ class StudentController extends Controller
         if (!$student) {
             return response()->json(['success' => false, 'message' => 'Student not found'], 404);
         }
-
+        // Xóa giáo viên khỏi bảng users
+    $student->user()->delete();
+        // Xóa các kết quả của sinh viên
+    $student->results()->delete();
+        // Xóa sinh viên khỏi tất cả lớp học
+        $student->classes()->detach();
+    
         $student->delete();
         return response()->json(['success' => true, 'message' => 'Student deleted successfully'], 200);
     }
 
+    
+
     // Xem lịch sử kết quả thi của sinh viên
     public function examHistory($studentId)
     {
-        $results = Result::with(['exam.subjects', 'exam.teachers']) // Bổ sung thông tin chi tiết
+        $results = Result::with(['exam.subjects:id,name', 'exam.teachers:id,name']) // Bổ sung thông tin chi tiết
         ->where('student_id', $studentId)
         ->paginate(10); // Phân trang
 

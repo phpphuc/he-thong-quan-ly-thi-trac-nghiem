@@ -11,6 +11,7 @@ class ExamQuestion extends Model
     protected $table = 'exam_question';
     protected $fillable = [
         'question_id',
+        'subject_id',
         'exam_id',
     ];
 
@@ -22,5 +23,9 @@ class ExamQuestion extends Model
     public function question()
     {
         return $this->belongsTo(Question::class,'question_id');
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
 }

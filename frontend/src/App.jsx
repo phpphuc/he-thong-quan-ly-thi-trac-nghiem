@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Login from "./components/pages/LoginPage/Login";
@@ -11,6 +11,7 @@ import LookUp from "./components/pages/StudentPage/LookUp";
 
 // Trang dành cho giảng viên
 import TeacherPage from "./components/pages/TeacherPage/TeacherPage";
+import QuestionBank from "./components/GeneralCore/QuestionBank";
 import QuestionDetail from "./components/pages/TeacherPage/QuestionDetail";
 import EditQuestion from "./components/pages/TeacherPage/EditQuestion";
 import CreateNewQuestion from "./components/pages/TeacherPage/CreateNewQuestion";
@@ -18,6 +19,8 @@ import ExamDetail from "./components/pages/TeacherPage/ExamPage/ExamDetail";
 import CreateExam from "./components/pages/TeacherPage/ExamPage/CreateExam";
 
 function App() {
+  const navigate = useNavigate();
+
   return (
     <AuthProvider>
       <Routes>
@@ -41,12 +44,13 @@ function App() {
           element={
             <ProtectedRoute>
               <Routes>
-                <Route path="/" element={<TeacherPage />} />
+                <Route path="/" element={<TeacherPage navigate={navigate} />} />
+                <Route path="cauhoi" element={<QuestionBank />} />
                 <Route path="cauhoi/:id" element={<QuestionDetail />} />
                 <Route path="chinhsuacauhoi/:id" element={<EditQuestion />} />
                 <Route path="taomoicauhoi" element={<CreateNewQuestion />} />
-                <Route path="chitietkythi" element={<ExamDetail/>}/>
-                <Route path="chinhsuakythi" element={<CreateExam/>}/>
+                <Route path="chitietkythi" element={<ExamDetail />} />
+                <Route path="chinhsuakythi" element={<CreateExam />} />
               </Routes>
             </ProtectedRoute>
           }

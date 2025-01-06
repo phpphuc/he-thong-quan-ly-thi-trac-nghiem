@@ -13,10 +13,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthController extends Controller
 {
-    public function index()
-    {
-        return User::all();
-    }
 
     // Temporary code for development purposes
     public function register(Request $request)

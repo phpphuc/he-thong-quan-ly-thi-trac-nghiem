@@ -8,74 +8,84 @@ use App\Models\Classroom;
 use App\Models\Exam;
 class ClassExamController
 {
-    /**
-     * Danh sách tất cả các kỳ thi của lớp học.
-     */
-    public function getExamsForClass($classId)
-    {
-        // Lấy lớp học theo ID
-        $class = Classroom::findOrFail($classId);
-
-        // Lấy tất cả các kỳ thi liên kết với lớp học
-        $exams = $class->exams()->with('subjects')->get();
-
-        return response()->json([
-            'message' => 'Danh sách các kỳ thi của lớp học.',
-            'data' => $exams,
-        ]);
-    }
+    
 
     /**
-     * Thêm kỳ thi vào lớp học.
-     */
-    public function addExamToClass(Request $request, $classId)
-    {
-        // Kiểm tra dữ liệu đầu vào
-        $request->validate([
-            'exam_id' => 'required|exists:exams,id',
-        ]);
+ * Thêm lớp học vào kỳ thi.
+ */
+public function addClassToExam(Request $request, $examId)
+{
+    // Kiểm tra dữ liệu đầu vào
+    $request->validate([
+        'class_id' => 'required|exists:classes,id',
+    ]);
 
-        // Lấy lớp học theo ID
-        $class = Classroom::findOrFail($classId);
+    // Lấy kỳ thi theo ID
+    $exam = Exam::findOrFail($examId);
 
-        // Lấy kỳ thi theo ID
-        $exam = Exam::findOrFail($request->exam_id);
+    // Lấy lớp học theo ID
+    $class = Classroom::findOrFail($request->class_id);
 
-        // Thêm kỳ thi vào lớp học (quan hệ nhiều-nhiều)
-        $class->exams()->attach($exam);
+    // Kiểm tra xem môn học của lớp học có nằm trong kỳ thi hay không
+    $classSubjectId = $class->subject_id; 
+    $examSubjectIds = $exam->subjects()->pluck('id')->toArray(); // Các môn học trong kỳ thi
 
+    if (!in_array($classSubjectId, $examSubjectIds)) {
         return response()->json([
-            'message' => 'Kỳ thi đã được thêm vào lớp học.',
-            'class' => $class,
-            'exam' => $exam,
-        ]);
+            'error' => 'Lớp học không thuộc môn học nào trong kỳ thi và không thể được thêm vào.',
+        ], 422);
     }
+    // Kiểm tra xem lớp học đã được thêm vào kỳ thi hay chưa
+    $exists = $exam->classrooms()->where('class_id', $class->id)->exists();
+    if ($exists) {
+        return response()->json([
+            'error' => 'Lớp học đã được liên kết với kỳ thi này.',
+        ], 422);
+    }
+
+    // Thêm lớp học vào kỳ thi (quan hệ nhiều-nhiều)
+    $exam->classrooms()->attach($class);
+
+    return response()->json([
+        'message' => 'Lớp học đã được thêm vào kỳ thi.',
+        'exam' => $exam,
+        'class' => $class,
+    ]);
+}
 
     /**
-     * Xóa kỳ thi khỏi lớp học.
-     */
-    public function removeExamFromClass(Request $request, $classId)
-    {
-        // Kiểm tra dữ liệu đầu vào
-        $request->validate([
-            'exam_id' => 'required|exists:exams,id',
-        ]);
+ * Xóa lớp học khỏi kỳ thi.
+ */
+public function removeClassFromExam(Request $request, $examId)
+{
+    // Kiểm tra dữ liệu đầu vào
+    $request->validate([
+        'class_id' => 'required|exists:classes,id',
+    ]);
 
-        // Lấy lớp học theo ID
-        $class = Classroom::findOrFail($classId);
+    // Lấy kỳ thi theo ID
+    $exam = Exam::findOrFail($examId);
 
-        // Lấy kỳ thi theo ID
-        $exam = Exam::findOrFail($request->exam_id);
+    // Lấy lớp học theo ID
+    $class = Classroom::findOrFail($request->class_id);
 
-        // Xóa kỳ thi khỏi lớp học
-        $class->exams()->detach($exam);
-
+    // Kiểm tra xem lớp học có được liên kết với kỳ thi hay không
+    $exists = $exam->classes()->where('class_id', $class->id)->exists();
+    if (!$exists) {
         return response()->json([
-            'message' => 'Kỳ thi đã được xóa khỏi lớp học.',
-            'class' => $class,
-            'exam' => $exam,
-        ]);
+            'error' => 'Lớp học không được liên kết với kỳ thi này.',
+        ], 422);
     }
+
+    // Xóa lớp học khỏi kỳ thi
+    $exam->classrooms()->detach($class->id);
+
+    return response()->json([
+        'message' => 'Lớp học đã được xóa khỏi kỳ thi thành công.',
+        'class' => $class,
+        'exam' => $exam,
+    ]);
+}
 
     /**
      * Hiển thị thông tin về các kỳ thi của lớp học.
@@ -83,14 +93,21 @@ class ClassExamController
     public function showExamsForClass($classId)
     {
         // Lấy lớp học theo ID
-        $class = Classroom::findOrFail($classId);
+    $class = Classroom::findOrFail($classId);
 
-        // Lấy danh sách kỳ thi liên kết với lớp học
-        $exams = $class->exams()->with(['subjects', 'teachers'])->get();
+    // Lấy danh sách kỳ thi liên kết với lớp học
+    $exams = $class->exams()->with(['subject', 'teachers'])->get();
 
+    if ($exams->isEmpty()) {
         return response()->json([
-            'message' => 'Danh sách các kỳ thi cho lớp học.',
-            'data' => $exams,
-        ]);
+            'message' => 'Lớp học không có kỳ thi nào được liên kết.',
+            'data' => [],
+        ], 404);
+    }
+
+    return response()->json([
+        'message' => 'Danh sách các kỳ thi cho lớp học.',
+        'data' => $exams,
+    ]);
     }
 }

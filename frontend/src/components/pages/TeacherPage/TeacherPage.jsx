@@ -1,3 +1,4 @@
+// Chỉnh sửa TeacherPage.jsx
 import { useState } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import GeneralSidebar from "../../common/GeneralSidebar";
@@ -11,6 +12,9 @@ const TeacherPage = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { generalCurrentView } = useAuth();
+
+  // Debugging: Log current view to verify logic
+  console.log("Current View:", generalCurrentView);
 
   // Map các component
   const componentMap = {

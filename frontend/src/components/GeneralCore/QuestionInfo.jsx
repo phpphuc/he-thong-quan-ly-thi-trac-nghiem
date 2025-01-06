@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaEdit, FaCheck } from "react-icons/fa";
 import {
   IoTrashSharp,
@@ -11,183 +11,107 @@ import DeleteModal from "../common/DeleteModal";
 import Notification from "../common/Notification";
 import axios from "axios";
 
-const QuestionInfo = () => {
-  const { id } = useParams();
-  const [questions, setQuestions] = useState([]);
+const QuestionInfo = ({ id }) => {
   const [questionDetail, setQuestionDetail] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const [notification, setNotification] = useState({
     isVisible: false,
     message: "",
   });
   const navigate = useNavigate();
 
-  const handleDeleteClick = (questionId) => {
-    setSelectedQuestionId(questionId);
+  const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = async (questionId) => {
+  const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/v1/questions/${questionId}`
-      );
+      await axios.delete(`http://127.0.0.1:8000/api/v1/questions/${id}`);
       setNotification({
         isVisible: true,
         message: "Xóa câu hỏi thành công!",
         bgColor: "green",
-        icon: <IoCheckmarkDone />,
+        icon: <IoCheckmarkDone />, 
       });
       setIsDeleteModalOpen(false);
-      window.history.back();
+      navigate(-1);
     } catch (err) {
-      console.log(err.message || "Error deleting question");
+      console.error("Error deleting question:", err);
       setNotification({
         isVisible: true,
         message: "Đã xảy ra lỗi khi xóa câu hỏi! Hãy thử lại sau.",
         bgColor: "red",
-        icon: <ShieldX />,
+        icon: <ShieldX />, 
       });
       setIsDeleteModalOpen(false);
     }
   };
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchQuestionDetail = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/v1/questions"
+          `http://127.0.0.1:8000/api/v1/questions/${id}`
         );
-        setQuestions(response.data);
+        console.log("Dữ liệu câu hỏi:", response.data);
+        setQuestionDetail(response.data.data);
       } catch (err) {
-        console.log(err.message || "Something went wrong");
+        console.error("Error fetching question detail:", err);
       }
     };
 
-    fetchQuestions();
-  }, []);
+    fetchQuestionDetail();
+  }, [id]);
 
-  useEffect(() => {
-    if (questions.length > 0) {
-      // Tìm question với id tương ứng
-      const foundQuestion = questions.find(
-        (question) => question.id === parseInt(id, 10)
-      );
-      setQuestionDetail(foundQuestion);
-    }
-  }, [questions, id]);
+  if (!questionDetail) {
+    return <p>Đang tải dữ liệu...</p>;
+  }
 
   return (
     <div className="w-full h-full max-w-4xl mx-auto mt-8 bg-gray-100 px-10 py-5 font-nunito">
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {id} - <span>{questionDetail?.question}</span>
-          </h1>
-        </div>
-        <div className="flex items-center justify-center">
-          <div className="mr-6">
-            <button
-              onClick={() => navigate(`/giangvien/chinhsuacauhoi/${id}`)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-            >
-              <FaEdit size={24} />
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={() => handleDeleteClick(id)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-            >
-              <IoTrashSharp size={24} />
-            </button>
-          </div>
+        <h1 className="text-2xl font-bold">{questionDetail.question}</h1>
+        <div className="flex items-center">
+          <button
+            onClick={() => navigate(`/giangvien/chinhsuacauhoi/${id}`)}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+          >
+            <FaEdit size={24} />
+          </button>
+          <button
+            onClick={handleDeleteClick}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 ml-4 rounded-lg transition duration-300"
+          >
+            <IoTrashSharp size={24} />
+          </button>
         </div>
       </div>
-
-      <Notification
-        message={notification.message}
-        isVisible={notification.isVisible}
-        onClose={() => setNotification({ ...notification, isVisible: false })}
-        bgColor={notification.bgColor}
-        icon={notification.icon}
-      />
-
+      <div className="bg-white p-6 rounded-lg shadow">
+        <p><strong>Môn học:</strong> {questionDetail.subject_name}</p>
+        <p><strong>Độ khó:</strong> {questionDetail.level}</p>
+        <p><strong>Đáp án đúng:</strong> {questionDetail.rightanswer}</p>
+        {"ABCD".split('').map((letter) => (
+          <p key={letter}>
+            <strong>Đáp án {letter}:</strong> {questionDetail[`answer_${letter.toLowerCase()}`]}
+          </p>
+        ))}
+      </div>
+      <div className="text-center mt-12">
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+        >
+          <div className="flex items-center justify-center">
+            <IoArrowBackOutline size={20} className="mr-1" />
+            Quay lại
+          </div>
+        </button>
+      </div>
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        questionId={selectedQuestionId}
       />
-
-      {/* Chi tiết câu hỏi */}
-      <div className="overflow-x-auto max-h-[500px] bg-white rounded-2xl">
-        <div className="px-12 py-6">
-          <div className="mb-6">
-            <h2 className="font-semibold mb-2">
-              Tên môn học: <span>{questionDetail?.subject_name}</span>
-            </h2>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="font-semibold">
-                  Câu hỏi: <span>{questionDetail?.question}</span>
-                </h2>
-              </div>
-              <div className="mr-4">
-                <p className="font-semibold">
-                  Độ khó:{" "}
-                  <span className="font-normal mr-2">
-                    {questionDetail?.level}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4" />
-                <span className="ml-2">{questionDetail?.answer_a}</span>
-                {questionDetail?.rightanswer === "A" && (
-                  <FaCheck size={20} className="text-green-500 ml-2 mb-1" />
-                )}
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4" />
-                <span className="ml-2">{questionDetail?.answer_b}</span>
-                {questionDetail?.rightanswer === "B" && (
-                  <FaCheck size={20} className="text-green-500 ml-2 mb-1" />
-                )}
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4" />
-                <span className="ml-2">{questionDetail?.answer_c}</span>
-                {questionDetail?.rightanswer === "C" && (
-                  <FaCheck size={20} className="text-green-500 ml-2 mb-1" />
-                )}
-              </div>
-              <div className="mb-3 flex items-center">
-                <input type="radio" name="id__answer--4" />
-                <span className="ml-2">{questionDetail?.answer_d}</span>
-                {questionDetail?.rightanswer === "D" && (
-                  <FaCheck size={20} className="text-green-500 ml-2 mb-1" />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <button
-              onClick={() => window.history.back()}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-            >
-              <div className="flex items-center justify-center">
-                <IoArrowBackOutline size={20} className="mr-1" />
-                Quay lại
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

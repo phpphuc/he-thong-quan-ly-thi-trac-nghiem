@@ -22,68 +22,41 @@ class TeacherController extends Controller
         ]);
     }
 
-    /**
-     * Tạo mới giáo viên.
-     
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'id' => 'required|uuid|unique:teachers,id',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:teachers,email',
-            'phone' => 'nullable|string|max:15',
-        ]);
 
-        $teacher = Teacher::create($validated);
-
-        return response()->json([
-            'message' => 'Tạo giáo viên thành công.',
-            'data' => $teacher,
-        ]);
-    }*/
 
     /**
      * Cập nhật thông tin giáo viên.
      */
-    public function update(Request $request, $teacherId)
+    public function update(Request $request, $id)
     {
        // Tìm giáo viên theo teacherId
-    $teacher = Teacher::findOrFail($teacherId);
-
-    // Xác thực các trường cần thiết
-    $validated = $request->validate([
-        'user_id' => 'sometimes|exists:users,id',  // Nếu có user_id thì cần tồn tại trong bảng users
-        'subject_ids' => 'nullable|array', // Cập nhật các môn học, nếu có
-        'subject_ids.*' => 'exists:subjects,id', // Mỗi subject_id phải tồn tại trong bảng subjects
-        'class_ids' => 'nullable|array', // Cập nhật các lớp học, nếu có
-        'class_ids.*' => 'exists:classes,id', // Mỗi class_id phải tồn tại trong bảng classes
+    $teacher = Teacher::findOrFail($id);
+    if (!$teacher) {
+        return response()->json(['error' => 'Teacher not found'], 404);
+    }
+    $validatedData = $request->validate([
+        'user.name' => 'nullable|string',
+        'user.email' => 'nullable|email|unique:users,email,' . $teacher->user_id,
+        'user.phone' => 'nullable|string',
+        'user.address' => 'nullable|string',
+        'user.birth_date' => 'nullable|date',
     ]);
 
-    // Cập nhật user_id nếu có
-    if ($request->has('user_id')) {
-        $teacher->user_id = $validated['user_id'];
+    // Cập nhật thông tin sinh viên
+    if (isset($validatedData['user'])) {
+        
+        $user = $teacher->user;
+
+        // Cập nhật thông tin người dùng
+        $user->update($validatedData['user']);
+
+        // Lưu thông tin người dùng sau khi cập nhật
+        $user->save();
     }
 
-    // Cập nhật các lớp học nếu có
-    if ($request->has('class_ids')) {
-        // Đồng bộ lại mối quan hệ với các lớp học mà không xóa lớp đã có
-        $teacher->classes()->syncWithoutDetaching($validated['class_ids']);
+    return response()->json(['success' => true, 'data' => $teacher->load('user')], 200);
     }
-
-    // Cập nhật các môn học nếu có
-    if ($request->has('subject_ids')) {
-        // Đồng bộ lại mối quan hệ với các môn học mà không xóa môn đã có
-        $teacher->subjects()->syncWithoutDetaching($validated['subject_ids']);
-    }
-
-    // Lưu các thay đổi cho trường thông tin giáo viên
-    $teacher->save();
-
-    return response()->json([
-        'message' => 'Cập nhật thông tin giáo viên thành công.',
-        'data' => $teacher,
-    ]);
-    }
+    
 
     /**
      * Xoá giáo viên.
@@ -99,6 +72,8 @@ class TeacherController extends Controller
             'message' => 'Không thể xóa giáo viên vì họ đang giảng dạy các lớp học hoặc môn học.',
         ], 400);
     }
+    // Xóa giáo viên khỏi bảng users
+    $teacher->user()->delete();
 
     // Xóa giáo viên
     $teacher->delete();
@@ -132,34 +107,5 @@ public function getSubjects($teacherId)
     ]);
 }
 
-    /**
-     * Tổ chức kỳ thi.
-     */
-    public function organizeExam(Request $request)
-    {
-        // Gọi đến ExamController để thực hiện việc tổ chức kỳ thi
-    $examController = new ExamController();
-
-    // Chuyển tiếp request đến phương thức createExam
-    return $examController->createExam($request);
-    }
-
-    public function addClassesToTeacher(Request $request, $teacherId)
-{
-    $request->validate([
-        'class_ids' => 'required|array',
-        'class_ids.*' => 'exists:classes,id', // Kiểm tra tất cả class_id có tồn tại trong bảng classes
-    ]);
-
-    $teacher = Teacher::findOrFail($teacherId);
-
-    // Đồng bộ các lớp học vào giáo viên
-    $teacher->classes()->sync($request->class_ids);
-
-    return response()->json([
-        'message' => 'Các lớp học đã được thêm vào giáo viên thành công.',
-        'teacher' => $teacher,
-        'classes' => $teacher->classes,
-    ]);
-}
+    
 }

@@ -1,3 +1,4 @@
+// Chỉnh sửa QuestionAdjustment.jsx
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { FaEdit, FaCheck } from "react-icons/fa";
 import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
@@ -7,21 +8,18 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const QuestionAdjustment = () => {
-  const initialData = useMemo(
-    () => ({
-      subject_id: "1",
-      subject_name: "",
-      teacher_id: 0,
-      question: "",
-      level: "Nhận biết",
-      rightanswer: "A",
-      answer_a: "",
-      answer_b: "",
-      answer_c: "",
-      answer_d: "",
-    }),
-    []
-  );
+  const initialData = useMemo(() => ({
+    subject_id: "1",
+    subject_name: "",
+    teacher_id: 0,
+    question: "",
+    level: "Nhận biết",
+    rightanswer: "A",
+    answer_a: "",
+    answer_b: "",
+    answer_c: "",
+    answer_d: "",
+  }), []);
 
   const [formData, setFormData] = useState(initialData);
   const [selectedAnswer, setSelectedAnswer] = useState("A");
@@ -30,49 +28,25 @@ const QuestionAdjustment = () => {
     message: "",
   });
   const { id } = useParams();
-  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchQuestion = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/v1/questions"
-        );
-        setQuestions(response.data);
-      } catch (err) {
-        console.log(err.message || "Something went wrong");
+        const response = await axios.get(`http://127.0.0.1:8000/api/v1/questions/${id}`);
+        const questionData = response.data.data;
+        setFormData((prev) => ({
+          ...prev,
+          ...questionData,
+          subject_name: questionData.subject_name || "",
+        }));
+        setSelectedAnswer(questionData.rightanswer || "A");
+      } catch (error) {
+        console.error("Error fetching question details:", error);
       }
     };
 
-    fetchQuestions();
-  }, []);
-
-  // Filter để chỉ lấy đúng những trường dữ liệu giống như initialData
-  const filterQuestionData = useCallback(
-    (questionData) => {
-      return Object.keys(initialData).reduce((acc, key) => {
-        acc[key] =
-          questionData[key] !== undefined
-            ? questionData[key]
-            : initialData[key];
-        return acc;
-      }, {});
-    },
-    [initialData]
-  );
-
-  useEffect(() => {
-    if (questions.length > 0) {
-      const foundQuestion = questions.find(
-        (question) => question.id === parseInt(id, 10)
-      );
-      if (foundQuestion) {
-        const filteredData = filterQuestionData(foundQuestion);
-        setFormData(filteredData);
-        setSelectedAnswer(foundQuestion.rightanswer);
-      }
-    }
-  }, [questions, id, filterQuestionData]);
+    fetchQuestion();
+  }, [id]);
 
   const handleAnswerChange = (answer) => {
     setSelectedAnswer(answer);
@@ -124,7 +98,7 @@ const QuestionAdjustment = () => {
         bgColor: "red",
         icon: <ShieldX />,
       });
-      console.log(error);
+      console.error("Error updating question:", error);
     }
   };
 
@@ -149,6 +123,7 @@ const QuestionAdjustment = () => {
               className="border border-gray-300 rounded px-2 py-1 w-96 mb-3 font-semibold"
               placeholder="Nhập tên môn học"
             />
+
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-semibold">
