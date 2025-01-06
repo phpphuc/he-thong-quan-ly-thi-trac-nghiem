@@ -12,14 +12,14 @@ class ResultController extends Controller
     // Hiển thị danh sách kết quả thi.
     public function index()
     {
-        $results = Result::with('exam', 'student')->get();
+        $results = Result::with(['exam', 'student', 'examSubject'])->get();
         return response()->json($results);
     }
 
     //Hiển thị chi tiết kết quả của một bài thi.
     public function show($id)
     {
-        $result = Result::with('exam', 'student')->find($id);
+        $result = Result::with(['exam', 'student', 'examSubject'])->find($id);
 
         if (!$result) {
             return response()->json(['message' => 'Result not found'], 404);
@@ -33,9 +33,15 @@ class ResultController extends Controller
     {
         $validated = $request->validate([
             'exam_id' => 'required|exists:exams,id',
+            'exam_subject_id' => 'required|exists:exam_subject,id',
             'student_id' => 'required|exists:students,id',
             'score' => 'required|numeric|min:0',
+            // Optionally, if start_time is available in the request, add it here
+            'start_time' => 'nullable|date', // Validate if start_time is passed
         ]);
+
+        // Include start_time if provided, otherwise default to now
+        $validated['start_time'] = $validated['start_time'] ?? now();
 
         $result = Result::create($validated);
 
@@ -50,6 +56,7 @@ class ResultController extends Controller
     {
         $validated = $request->validate([
             'score' => 'nullable|numeric|min:0',
+            'start_time' => 'nullable|date',  // Allow updating start_time
         ]);
 
         $result = Result::find($id);
@@ -69,7 +76,7 @@ class ResultController extends Controller
     // Xem lịch sử kết quả của một sinh viên.
     public function studentHistory($studentId)
     {
-        $results = Result::with('exam')
+        $results = Result::with(['examSubject.subject', 'exam'])
             ->where('student_id', $studentId)
             ->get();
 
