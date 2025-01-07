@@ -15,7 +15,7 @@ class Result extends Model
         'score',
         'start_time',
         'exam_subject_id',
-        'note',
+        'notes',
     ];
     protected $dates = [
         'start_time',  
