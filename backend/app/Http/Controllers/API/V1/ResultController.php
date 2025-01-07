@@ -57,6 +57,7 @@ class ResultController extends Controller
             'score' => 'required|numeric|min:0',
             // Optionally, if start_time is available in the request, add it here
             'start_time' => 'nullable|date', // Validate if start_time is passed
+            'notes' => 'nullable|string',
         ]);
 
         // Include start_time if provided, otherwise default to now
@@ -76,6 +77,7 @@ class ResultController extends Controller
         $validated = $request->validate([
             'score' => 'nullable|numeric|min:0',
             'start_time' => 'nullable|date',  // Allow updating start_time
+            'notes' => 'nullable|string',
         ]);
 
         $result = Result::find($id);
