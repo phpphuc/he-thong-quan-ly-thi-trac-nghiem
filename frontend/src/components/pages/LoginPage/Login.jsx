@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { TextField } from "@mui/material";
 import { useAuth } from "../../auth/AuthContext";
 
@@ -9,7 +7,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (event) => {
@@ -18,23 +15,8 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/v1/login", {
-        email,
-        password,
-      });
-      // console.log(response.data.data);
-      // Xử lý thành công
-      login(response.data.data);
-      // Điều hướng trang theo role tương ứng
-      if (response.data.data.type === "STUDENT") {
-        navigate("/sinhvien");
-      } else if (response.data.data.type === "TEACHER") {
-        navigate("/giangvien");
-      } else if (response.data.data.type === "SCHOOLBOARD") {
-        navigate("/bgh");
-      }
+      await login(email, password);
     } catch (err) {
-      // Xử lý lỗi
       console.error("Login failed:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Wrong email or password!");
     } finally {

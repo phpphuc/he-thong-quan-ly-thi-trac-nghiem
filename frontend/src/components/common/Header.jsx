@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { FaCaretDown, FaUserEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "./axiosInstance";
 
 const Header = ({
   isSidebarOpen,
@@ -31,7 +32,6 @@ const Header = ({
 
   const handleLogout = () => {
     logout();
-    navigate("/", { replace: true });
   };
 
   return (
