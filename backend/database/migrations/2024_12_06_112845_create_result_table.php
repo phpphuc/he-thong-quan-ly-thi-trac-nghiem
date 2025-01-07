@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('score', 5, 2);
             $table->timestamps();
             $table->timestamp('start_time')->nullable();
-            $table->string('note');
+            $table->string('notes');
         });
     }
 
