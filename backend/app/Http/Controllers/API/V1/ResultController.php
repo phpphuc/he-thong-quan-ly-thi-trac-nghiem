@@ -19,13 +19,32 @@ class ResultController extends Controller
     //Hiển thị chi tiết kết quả của một bài thi.
     public function show($id)
     {
-        $result = Result::with(['exam', 'student', 'examSubject'])->find($id);
+        // Lấy kết quả bài thi với các mối quan hệ liên quan
+    $result = Result::with(['exam', 'examSubject'])->find($id);
 
-        if (!$result) {
-            return response()->json(['message' => 'Result not found'], 404);
-        }
+    if (!$result) {
+        return response()->json(['message' => 'Result not found'], 404);
+    }
 
-        return response()->json($result);
+    // Lấy thông tin môn học từ bảng subjects thông qua exam_subject
+    $examSubject = $result->examSubject;
+    $subject = Subject::find($examSubject->subject_id);
+
+    if (!$subject) {
+        return response()->json(['message' => 'Subject not found'], 404);
+    }
+
+    // Định dạng lại dữ liệu trả về cho frontend
+    $formattedResult = [
+        'test_name' => $result->exam->name, // Tên bài thi từ bảng exam
+        'subject' => $subject->name, // Lấy tên môn học từ bảng subjects
+        'create_at' => $result->created_at->format('Y-m-d H:i:s'), // Định dạng ngày tạo
+        'type' => $result->exam->type, // Loại bài thi từ bảng exam
+        'result' => $result->score, // Điểm số của bài thi
+        'notes' => $result->notes, // Ghi chú (nếu có)
+    ];
+
+    return response()->json($formattedResult);
     }
 
     // Lưu kết quả bài thi.
