@@ -39,11 +39,19 @@ Route::prefix('v1')->group(function () {
 
 
     Route::get('/exams', [ExamController::class, 'index']);
-    Route::get('/exams/{id}', [ExamController::class, 'showExam']);
-    Route::post('/exams', [ExamController::class, 'createExam']);
-    Route::get('/students/{id}/exams', [ExamController::class, 'getExamsForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
+    Route::patch('/exams/{id}', [ExamController::class, 'updateExam']);
 
-    Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam']);
+    Route::get('students/exams/{id}', [ExamController::class, 'showExamForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
+    Route::get('/students/exams', [ExamController::class, 'getExamsForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
+    Route::get('/students/completed-exams', [ExamController::class, 'getCompletedExamsForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
+    Route::get('/students/completed-exams/{exam_id}', [ExamController::class, 'getCompletedExamDetailsForStudent'])->middleware('auth:sanctum', 'abilities:view-student-exams');
+    Route::post('/exams/{id}/submit', [ExamController::class, 'submitExam'])->middleware('auth:sanctum', 'abilities:submit-exams');
+
+    Route::get('/teachers/exams', [ExamController::class, 'getExamsForTeacher'])->middleware('auth:sanctum', 'abilities:view-exams');
+    Route::get('/teachers/exams/{id}', [ExamController::class, 'showExamForTeacher'])->middleware('auth:sanctum', 'abilities:view-exams');
+    Route::post('/exams', [ExamController::class, 'createExam'])->middleware('auth:sanctum', 'abilities:create-exams');
+
+    Route::get('/teachers/subjects', [SubjectController::class, 'getSubjectsByTeacher'])->middleware('auth:sanctum', 'abilities:view-subjects');
 
     Route::get('/results', [ResultController::class, 'index']);
     Route::get('/results/{id}', [ResultController::class, 'show']);

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -37,14 +38,26 @@ class DatabaseSeeder extends Seeder
             $createdUser = User::create($user);
 
             if ($createdUser->role == 'TEACHER') {
-                $createdUser->teacher()->create();
+                $teacher = $createdUser->teacher()->create();
+                // dd($teacher);
             } else if ($createdUser->role == 'STUDENT') {
                 $createdUser->student()->create();
             } else if ($createdUser->role == 'SCHOOLBOARD') {
                 $createdUser->schoolboard()->create();
             }
-        }
+            // DB::transaction(function () use ($user) {
+            //     $createdUser = User::create($user);
 
+            //     if ($createdUser->role == 'TEACHER') {
+            //         $createdUser->teacher()->create();
+            //     } elseif ($createdUser->role == 'STUDENT') {
+            //         $createdUser->student()->create();
+            //     } elseif ($createdUser->role == 'SCHOOLBOARD') {
+            //         $createdUser->schoolboard()->create();
+            //     }
+            // });
+        }
+        // dd($teacher);
         $subjects = [
             [
                 "name" => "Anh văn 1",
@@ -68,7 +81,7 @@ class DatabaseSeeder extends Seeder
 
         $exams = [
             [
-                "name" => "Final Exam",
+                "test_name" => "Final Exam",
                 "subject_id" => 1,
                 "teacher_id" => 1,
                 "time" => 60,
@@ -76,11 +89,11 @@ class DatabaseSeeder extends Seeder
                 "Qtype1" => 1,
                 "Qtype2" => 1,
                 "Qtype3" => 1,
-                "Qnumber" => 3
-
+                "Qnumber" => 3,
+                "start_time" => "2024-12-31 16:53:00"
             ],
             [
-                "name" => "Final Exam",
+                "test_name" => "Final Exam",
                 "subject_id" => 1,
                 "teacher_id" => 1,
                 "time" => 60,
@@ -88,7 +101,8 @@ class DatabaseSeeder extends Seeder
                 "Qtype1" => 1,
                 "Qtype2" => 1,
                 "Qtype3" => 1,
-                "Qnumber" => 3
+                "Qnumber" => 3,
+                "start_time" => "2025-01-01 12:53:00"
 
             ]
         ];

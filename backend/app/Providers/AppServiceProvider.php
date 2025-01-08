@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
         });
         //
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Carbon::setLocale(config('app.locale'));
+        // date_default_timezone_set(config('app.timezone'));
+        Carbon::setLocale(config('app.locale'));
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
     }
 }

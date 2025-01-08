@@ -11,14 +11,21 @@ class QuestionController extends Controller
     // Lấy danh sách câu hỏi
     public function index()
     {
-        return Question::all();
+        $questions = Question::all();
+
+        $questions = $questions->map(function ($question): Question {
+            $question->subject_name = $question->subject->name;
+            return $question;
+        });
+
+        return response()->json($questions);
     }
     // Thêm mới câu hỏi
     public function store(Request $request)
     {
         $validated = $request->validate([
             'subject_id' => 'required|string',
-            'subject_name' => 'required|string',                           
+            // 'subject_name' => 'required|string',
             'teacher_id' => 'required|integer',
             'question' => 'required|string',
             'level' => 'required|string|in:Nhận biết,Thông hiểu,Vận dụng',
@@ -44,7 +51,7 @@ class QuestionController extends Controller
 
         $validated = $request->validate([
             'subject_id' => 'sometimes|string',
-            'subject_name' => 'sometimes|string',
+            // 'subject_name' => 'sometimes|string',
             'teacher_id' => 'sometimes|integer',
             'question' => 'sometimes|string',
             'level' => 'sometimes|string|in:Nhận biết,Thông hiểu,Vận dụng',

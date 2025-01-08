@@ -11,7 +11,7 @@ class CreateQuestionsTable extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->string('subject_id');
-            $table->string('subject_name');
+            // $table->string('subject_name');
             $table->unsignedBigInteger('teacher_id');
             $table->text('question');
             $table->enum('level', ['Nhận biết', 'Thông hiểu', 'Vận dụng']);

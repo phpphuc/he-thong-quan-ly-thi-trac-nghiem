@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Request;
+use App\Models\Teacher;
 use App\Models\Subject;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Classroom;
 use App\Models\Exam;
 
@@ -93,6 +95,23 @@ class SubjectController extends Controller
         return response()->json([
             'message' => 'Môn học đã được liên kết với kỳ thi thành công!',
             'exam'   => $exam
+        ]);
+    }
+
+    public function getSubjectsByTeacher()
+    {
+        $id = Auth::id();
+
+        $teacher = Teacher::where('user_id', $id)->firstOrFail();
+
+        $classes = Classroom::where('teacher_id', $teacher->id)->get();
+
+        $subjectIds = $classes->pluck('subject_id')->unique();
+
+        $subjects = Subject::whereIn('id', $subjectIds)->get();
+
+        return response()->json([
+            'subjects' => $subjects
         ]);
     }
 }

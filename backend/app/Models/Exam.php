@@ -20,6 +20,7 @@ class Exam extends Model
         'Qtype2',
         'Qtype3',
         'Qnumber',
+        'start_time',
     ];
     public function subject()
     {

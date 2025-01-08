@@ -83,13 +83,13 @@ class AuthController extends Controller
         $abilities = [];
         switch ($user->role) {
             case 'TEACHER':
-                $abilities = ['view-users', 'view-questions', 'create-questions', 'update-questions', 'delete-questions', 'view-exams', 'create-exams', 'submit-exams', 'view-results', 'create-results', 'update-results', 'view-student-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report'];
+                $abilities = ['view-users', 'view-questions', 'create-questions', 'update-questions', 'delete-questions', 'view-subjects', 'view-exams', 'create-exams', 'submit-exams', 'view-results', 'create-results', 'update-results', 'view-student-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report', 'edit-exams'];
                 break;
             case 'STUDENT':
                 $abilities = ['view-student-exams', 'submit-exams', 'view-student-results'];
                 break;
             case 'SCHOOLBOARD':
-                $abilities = ['view-users', 'view-questions', 'view-exams', 'create-exams', 'view-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report'];
+                $abilities = ['view-users', 'view-questions', 'view-exams', 'create-exams', 'view-results', 'view-exam-report', 'view-schoolboards', 'create-schoolboards', 'update-schoolboards', 'delete-schoolboards', 'create-schoolboard-exams', 'view-schoolboard-exams', 'view-schoolboard-exam-report', 'edit-exams'];
                 break;
         }
 
