@@ -119,7 +119,7 @@ $question->update($updateData);
     // Xóa câu hỏi nếu chưa được liên kết với kỳ thi
     $question->delete();
 
-    return response()->json(['message' => 'Question deleted successfully'], 200);
+    return response()->json(['message' => 'Question deleted successfully!!!'], 200);
     }
 
     
