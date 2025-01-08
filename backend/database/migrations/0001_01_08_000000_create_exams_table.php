@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('school_board_id')->nullable();
+            $table->unsignedBigInteger('school_board_id')->nullable();  // hoặc bắt buộc nếu cần
             $table->enum('examtype', ['NORMAL', 'GENERAL EXAM']);
             $table->timestamps();
             $table->foreign('school_board_id')->references('id')->on('school_boards');
@@ -46,8 +46,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exams');
         Schema::dropIfExists('exam_teacher');
         Schema::dropIfExists('exam_subject');
+        Schema::dropIfExists('exams');
     }
 };
