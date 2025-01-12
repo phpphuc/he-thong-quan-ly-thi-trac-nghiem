@@ -62,7 +62,7 @@ class QuestionController extends Controller
             
         ]);
         
-        $question->subject_name = $subject->name;
+        
         return response()->json(['message' => 'Question created successfully', 'data' => $question], 201);
     }
     //cập nhật câu hỏi
