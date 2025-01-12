@@ -3,9 +3,9 @@ import { useState } from "react";
 import Header from "../../../common/Header";
 import ExamCreation from "../../../GeneralCore/ExamManagement/ExamCreation";
 import GeneralSidebar from "../../../common/GeneralSidebar";
-import ExamDetail_core from "../../../GeneralCore/ExamManagement_v2/ExamDetail_core";
+import ExamDetails_core from "../../../GeneralCore/ExamsManagement/ExamsDetail_core";
 
-const CreateExam = () => {
+const CreateExams = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   return (
@@ -22,8 +22,7 @@ const CreateExam = () => {
             setSidebarOpen={setSidebarOpen}
           />
           <div className="bg-gray-100 rounded-lg shadow-sm mb-6">
-            {/* <ExamCreation /> */}
-            <ExamDetail_core/>
+            <ExamDetails_core/>
           </div>
         </div>
       </div>
@@ -31,4 +30,4 @@ const CreateExam = () => {
   );
 };
 
-export default CreateExam;
+export default CreateExams;

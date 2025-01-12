@@ -2,76 +2,55 @@ import { useState, useEffect, useRef } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import {
-  IoInformationCircle,
-  IoTrashSharp,
-  IoCheckmarkDone,
-} from "react-icons/io5";
-import { ShieldX } from "lucide-react";
+import { IoInformationCircle, IoTrashSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import DeleteModal from "../common/DeleteModal";
-import Notification from "../common/Notification";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 import "../../assets/customCSS/LoadingEffect.css";
 
 const Examinations = ({ searchQuery }) => {
-  const [questions, setQuestions] = useState([]);
-  const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [exams, setExams] = useState([]);
+  const [filteredExams, setFilteredExams] = useState([]);
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
-  const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedQuestionId, setSelectedQuestionId] = useState(null);
-  const [notification, setNotification] = useState({
-    isVisible: false,
-    message: "",
-  });
 
   const filterRef = useRef(null);
   const typeRef = useRef(null);
   const navigate = useNavigate();
 
-  // const fetchQuestions = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await axios.get(
-  //       "http://127.0.0.1:8000/api/v1/questions"
-  //     );
-  //     setQuestions(response.data);
-  //     setFilteredQuestions(response.data);
-  //   } catch (err) {
-  //     console.log(err.message || "Something went wrong");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const fetchSubjects = async () => {
-  //   try {
-  //     const response = await axios.get("http://127.0.0.1:8000/api/v1/subjects");
-  //     setSubjects(response.data);
-  //   } catch (err) {
-  //     console.log(err.message || "Error fetching subjects");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchQuestions();
-  //   // fetchSubjects();
-  // }, []);
+  const fetchExams = async () => {
+    setIsLoading(true);
+    try {
+      let id = JSON.parse(localStorage.getItem("user")).id;
+      const response = await axiosInstance.get(
+        `/teachers/${id}/exams`
+      );
+      setExams(response.data.exams);
+      setFilteredExams(response.data.exams);
+    } catch (err) {
+      console.log(err.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    filterQuestions();
-  }, [filterValue, typeValue, searchQuery, questions]);
+    fetchExams();
+  }, []);
 
-  const filterQuestions = () => {
-    let filtered = [...questions];
+  useEffect(() => {
+    filterExams();
+  }, [filterValue, typeValue, searchQuery, exams]);
+
+  const filterExams = () => {
+    let filtered = [...exams];
 
     // Lọc theo tìm kiếm
     if (searchQuery) {
-      filtered = filtered.filter((question) =>
-        question.question.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (exam) =>
+          exam.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          exam.subject.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -79,7 +58,7 @@ const Examinations = ({ searchQuery }) => {
     if (filterValue !== "default") {
       if (filterValue === "monhoc") {
         filtered = filtered.sort((a, b) =>
-          a.subject_id.localeCompare(b.subject_id)
+          a.subject.name.localeCompare(b.subject.name)
         );
       } else if (filterValue === "ngaytao") {
         filtered = filtered.sort(
@@ -88,12 +67,12 @@ const Examinations = ({ searchQuery }) => {
       }
     }
 
-    // Lọc theo độ khó
+    // Lọc theo loại kỳ thi
     if (typeValue !== "default") {
-      filtered = filtered.filter((question) => question.level === typeValue);
+      filtered = filtered.filter((exam) => exam.type === typeValue);
     }
 
-    setFilteredQuestions(filtered);
+    setFilteredExams(filtered);
   };
 
   const handleChangeFilter = (e) => {
@@ -109,38 +88,8 @@ const Examinations = ({ searchQuery }) => {
   const handleReset = () => {
     setFilterValue("default");
     setTypeValue("default");
-    setFilteredQuestions(questions);
+    setFilteredExams(exams);
   };
-
-  // const handleDeleteClick = (questionId) => {
-  //   setSelectedQuestionId(questionId);
-  //   setIsDeleteModalOpen(true);
-  // };
-
-  // const handleDeleteConfirm = async (questionId) => {
-  //   try {
-  //     await axios.delete(
-  //       `http://127.0.0.1:8000/api/v1/questions/${questionId}`
-  //     );
-  //     await fetchQuestions();
-  //     setNotification({
-  //       isVisible: true,
-  //       message: "Xóa câu hỏi thành công!",
-  //       bgColor: "green",
-  //       icon: <IoCheckmarkDone />,
-  //     });
-  //     setIsDeleteModalOpen(false);
-  //   } catch (err) {
-  //     console.log(err.message || "Error deleting question");
-  //     setNotification({
-  //       isVisible: true,
-  //       message: "Đã xảy ra lỗi khi xóa câu hỏi! Hãy thử lại sau.",
-  //       bgColor: "red",
-  //       icon: <ShieldX />,
-  //     });
-  //     setIsDeleteModalOpen(false);
-  //   }
-  // };
 
   return isLoading ? (
     <div className="loader w-[50px] h-[50px] bg-gray-100 py-5 font-nunito absolute top-1/3 left-1/2 "></div>
@@ -158,9 +107,9 @@ const Examinations = ({ searchQuery }) => {
             onChange={handleChangeFilter}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
-            <option value="default">-- Môn học --</option>
-            <option value="monhoc">OOP</option>
-            <option value="ngaytao">OOAD</option>
+            <option value="default">-- Tất cả --</option>
+            <option value="monhoc">Môn học</option>
+            <option value="ngaytao">Ngày tạo</option>
           </select>
           <select
             value={typeValue}
@@ -168,10 +117,9 @@ const Examinations = ({ searchQuery }) => {
             onChange={handleChangeType}
             className="px-2 py-1 border-2 rounded-lg cursor-pointer"
           >
-            <option value="default">-- Loại --</option>
-            <option value="EASY">Thi tập trung</option>
-            <option value="NORMAL">Thi riêng</option>
-
+            <option value="default">-- Loại kỳ thi --</option>
+            <option value="Thi riêng">Thi riêng</option>
+            <option value="Tập trung">Tập trung</option>
           </select>
           <button
             className="flex items-center justify-center hover:border-red-500 border-2 p-1 rounded-lg"
@@ -183,21 +131,13 @@ const Examinations = ({ searchQuery }) => {
         </div>
         <div>
           <button
-            onClick={() => navigate("/giangvien/chitietkythi")}
+            onClick={() => navigate("/giangvien/taomoikythi")}
             className="w-28 mr-6 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50"
           >
             Tạo mới
           </button>
         </div>
       </div>
-
-      <Notification
-        message={notification.message}
-        isVisible={notification.isVisible}
-        onClose={() => setNotification({ ...notification, isVisible: false })}
-        bgColor={notification.bgColor}
-        icon={notification.icon}
-      />
 
       <div className="overflow-x-auto max-h-[470px] bg-white rounded-2xl">
         <table className="w-full border-collapse">
@@ -212,42 +152,39 @@ const Examinations = ({ searchQuery }) => {
             </tr>
           </thead>
           <tbody>
-            {/* {filteredQuestions.map((item) => (
-              <tr key={item.id} className="border-b"> */}
-                {/* <td className="px-4 py-2 text-center">{item.id}</td>
-                <td className="px-4 py-2 text-center">{item.question}</td>
-                <td className="px-4 py-2 text-center">{item.subject_id}</td>
-                <td className="px-4 py-2 text-center">{item.created_at}</td>
-                <td className="px-4 py-2 text-center">{item.level}</td> */}
-                <td className="px-4 py-2 text-center">E001</td>
-                <td className="px-4 py-2 text-center">IT005.212</td>
-                <td className="px-4 py-2 text-center">OOP</td>
-                <td className="px-4 py-2 text-center">01 December 2024</td>
-                <td className="px-4 py-2 text-center">Thi riêng</td>
+            {filteredExams.map((exam) => (
+              <tr key={exam.id} className="border-b">
+                <td className="px-4 py-2 text-center">{exam.id}</td>
+                <td className="px-4 py-2 text-center">{exam.test_name}</td>
+                <td className="px-4 py-2 text-center">{exam.subject.name}</td>
+                <td className="px-4 py-2 text-center">
+                  {new Date(exam.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2 text-center">{exam.type}</td>
                 <td className="px-4 py-2 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                    // onClick={() => navigate(`/giangvien/cauhoi/${item.id}`)}
+                    onClick={() => navigate(`/giangvien/chitietkythi/${exam.id}`)}
                   >
                     <IoInformationCircle size={24} />
                   </button>
                   <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
-                    // onClick={() => handleDeleteClick(item.id)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold ml-2 py-2 px-4 rounded-lg transition duration-300"
+                    onClick={() => handleDeleteClick(exam.id)}
                   >
                     <IoTrashSharp size={24} />
                   </button>
                 </td>
-              {/* </tr>
-            ))}  */}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
       <div className="flex items-center justify-between mt-4">
         <div>
-          Hiển thị {filteredQuestions.length > 0 ? "1" : "0"}-
-          {filteredQuestions.length} trong số {filteredQuestions.length}
+          Hiển thị {filteredExams.length > 0 ? "1" : "0"}-
+          {filteredExams.length} trong số {filteredExams.length}
         </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">
@@ -258,13 +195,6 @@ const Examinations = ({ searchQuery }) => {
           </button>
         </div>
       </div>
-
-      {/* <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        questionId={selectedQuestionId}
-      /> */}
     </div>
   );
 };

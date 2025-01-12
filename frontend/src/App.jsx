@@ -16,6 +16,8 @@ import EditQuestion from "./components/pages/TeacherPage/EditQuestion";
 import CreateNewQuestion from "./components/pages/TeacherPage/CreateNewQuestion";
 import ExamDetail from "./components/pages/TeacherPage/ExamPage/ExamDetail";
 import CreateExam from "./components/pages/TeacherPage/ExamPage/CreateExam";
+import EditExam from "./components/pages/TeacherPage/ExamPage/EditExam";
+import CreateExams from "./components/pages/TeacherPage/ExamsPage/CreateExams";
 
 function App() {
   return (
@@ -45,8 +47,12 @@ function App() {
                 <Route path="cauhoi/:id" element={<QuestionDetail />} />
                 <Route path="chinhsuacauhoi/:id" element={<EditQuestion />} />
                 <Route path="taomoicauhoi" element={<CreateNewQuestion />} />
-                <Route path="chitietkythi" element={<ExamDetail/>}/>
-                <Route path="chinhsuakythi" element={<CreateExam/>}/>
+
+                <Route path="taomoikythi" element={<CreateExams/>}/>
+
+                <Route path="chitietdethi/:id" element={<ExamDetail/>}/>
+                <Route path="chinhsuadethi/:id" element={<EditExam/>}/>
+                <Route path="taomoidethi/" element={<CreateExam/>}/>
               </Routes>
             </ProtectedRoute>
           }

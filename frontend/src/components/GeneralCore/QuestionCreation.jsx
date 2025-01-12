@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
 import { IoMdAdd } from "react-icons/io";
 import Notification from "../common/Notification";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
+
 
 const QuestionCreation = () => {
   const initialData = {
@@ -25,6 +26,21 @@ const QuestionCreation = () => {
     isVisible: false,
     message: "",
   });
+
+  const [subjects, setSubjects] = useState([]);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const response = await axiosInstance.get('/teachers/subjects');
+        setSubjects(response.data.subjects);
+      } catch (error) {
+        console.log("Error fetching subjects:", error);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   const handleAnswerChange = (answer) => {
     setSelectedAnswer(answer);
@@ -63,7 +79,7 @@ const QuestionCreation = () => {
 
     try {
       console.log("formData to create question: ", formData);
-      await axios.post(`http://127.0.0.1:8000/api/v1/questions`, formData);
+      await axiosInstance.post(`/questions`, formData);
       setNotification({
         isVisible: true,
         message: "Tạo mới câu hỏi thành công!",
@@ -84,7 +100,7 @@ const QuestionCreation = () => {
   return (
     <div className="w-full h-full max-w-4xl mx-auto mt-8 bg-gray-100 px-10 py-5 font-nunito">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold hidden">
           Tiêu đề:{" "}
           <input
             type="text"
@@ -126,15 +142,25 @@ const QuestionCreation = () => {
                 </select>
               </div>
             </div>
-            <input
-              type="text"
-              value={formData.subject_name}
-              onChange={(e) =>
-                setFormData({ ...formData, subject_name: e.target.value })
-              }
-              className="border border-gray-300 rounded px-2 py-1 font-semibold mb-6"
-              placeholder="Nhập tên môn học"
-            />
+              <select
+                value={formData.subject_id}
+                onChange={(e) => {
+                  const selectedSubject = subjects.find(sub => sub.id === parseInt(e.target.value));
+                  setFormData({
+                    ...formData,
+                    subject_id: e.target.value,
+                    // subject_name: selectedSubject ? selectedSubject.name : "",
+                  });
+                }}
+                className="border border-gray-300 rounded px-2 py-1 font-semibold mb-6"
+              >
+                <option value="">Chọn môn học</option>
+                {subjects.map(subject => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </option>
+                ))}
+              </select>
             <div>
               {["A", "B", "C", "D"].map((letter) => (
                 <div key={letter} className="mb-3 flex items-center">

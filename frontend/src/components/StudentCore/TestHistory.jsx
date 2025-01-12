@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FaUndo } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosConfig";
 
 const TestHistory = ({ searchQuery }) => {
   const [filterValue, setFilterValue] = useState("default");
   const [typeValue, setTypeValue] = useState("default");
+  const [completedExams, setCompletedExams] = useState([]);
   const filterRef = useRef(null);
   const typeRef = useRef(null);
   const navigate = useNavigate();
@@ -42,6 +44,20 @@ const TestHistory = ({ searchQuery }) => {
     },
   ];
 
+  useEffect(() => {
+    const fetchCompletedExams = async () => {
+      try {
+        const response = await axiosInstance.get(`/students/completed-exams`);
+        const data = await response.data;
+        setCompletedExams(data.completed_exams);
+      } catch (error) {
+        console.error("Error fetching completed exams:", error);
+        alert("Có lỗi xảy ra khi tải bài thi!");
+      }
+    };
+    fetchCompletedExams();
+  }, []);
+
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
     filterRef.current.blur();
@@ -62,17 +78,17 @@ const TestHistory = ({ searchQuery }) => {
   };
 
   // Filter the data based on the selected filters and search query
-  const filteredData = data
+   const filteredData = completedExams
     .filter((item) => {
       const matchesSearch =
         !searchQuery ||
         item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.subject.toLowerCase().includes(searchQuery.toLowerCase());
+        item.subject.name.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesFilter =
         filterValue === "default" ||
         (filterValue === "monhoc" &&
-          item.subject
+          item.subject.name
             .toLowerCase()
             .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
         (filterValue === "lophoc" &&
@@ -80,7 +96,7 @@ const TestHistory = ({ searchQuery }) => {
             .toLowerCase()
             .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
         (filterValue === "ngaytao" &&
-          item.create_at.includes(searchQuery ? searchQuery : ""));
+          item.exam_date.includes(searchQuery ? searchQuery : ""));
 
       const matchesType =
         typeValue === "default" ||
@@ -91,18 +107,20 @@ const TestHistory = ({ searchQuery }) => {
     })
     .sort((a, b) => {
       if (filterValue === "ngaytao") {
-        // Sort by create_at, latest first
-        return new Date(b.create_at) - new Date(a.create_at);
+        // Sort by exam_date, latest first
+        return new Date(b.exam_date) - new Date(a.exam_date);
       } else if (filterValue === "monhoc" || filterValue === "lophoc") {
         // Sort by subject (for monhoc) or test_name (for lophoc)
-        const field = filterValue === "monhoc" ? "subject" : "test_name";
-        return a[field].localeCompare(b[field]);
+        const field = filterValue === "monhoc" ? "subject.name" : "test_name";
+        const aValue = field.split('.').reduce((o, i) => o[i], a);
+        const bValue = field.split('.').reduce((o, i) => o[i], b);
+        return aValue && bValue ? aValue.localeCompare(bValue) : 0;
       }
       return 0;
     });
 
   return (
-    <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
+    <div className="w-full h-full max-w-6xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
       <h1 className="text-2xl font-bold mb-4">Lịch sử bài thi đã làm</h1>
 
       <div className="flex items-center my-5">
@@ -147,7 +165,7 @@ const TestHistory = ({ searchQuery }) => {
               <th className="px-4 py-2">ID</th>
               <th className="px-4 py-2">Tên bài thi</th>
               <th className="px-4 py-2">Môn học</th>
-              <th className="px-4 py-2">Ngày tạo</th>
+              <th className="px-4 py-2">Ngày thi</th>
               <th className="px-4 py-2">Loại</th>
               <th className="px-4 py-2 text-center">Thao tác</th>
             </tr>
@@ -157,8 +175,10 @@ const TestHistory = ({ searchQuery }) => {
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.test_name}</td>
-                <td className="px-4 py-2 text-center">{item.subject}</td>
-                <td className="px-4 py-2 text-center">{item.create_at}</td>
+                <td className="px-4 py-2 text-center">{item.subject.name}</td>
+                <td className="px-4 py-2 text-center">
+                  {new Date(item.submission_time).toLocaleString()}
+                </td>
                 <td className="px-4 py-2 text-center">{item.type}</td>
                 <td className="px-4 py-2 text-center">
                   <button
@@ -176,7 +196,7 @@ const TestHistory = ({ searchQuery }) => {
 
       <div className="flex items-center justify-between mt-4">
         <div>
-          Hiển thị 1-{filteredData.length} trong số {data.length}
+          Hiển thị 1-{filteredData.length} trong số {completedExams.length}
         </div>
         <div className="flex items-center space-x-2">
           <button className="px-3 py-2 rounded hover:bg-gray-200 transition duration-300">

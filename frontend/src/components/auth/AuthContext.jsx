@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [studentCurrentView, setStudentCurrentView] = useState("baithi");
-  const [generalCurrentView, setGeneralCurrentView] = useState("kythi");
+  const [generalCurrentView, setGeneralCurrentView] = useState("dethi");
 
   const login = (user) => {
     localStorage.setItem("user", JSON.stringify(user));

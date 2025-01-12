@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
 import { IoMdAdd } from "react-icons/io";
@@ -6,7 +7,9 @@ import Notification from "../../common/Notification";
 import axiosInstance from "../../../utils/axiosConfig";
 import dayjs from "dayjs";
 
-const ExamCreation = () => {
+const ExamEdit = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const initialData = {
     test_name: "",
     subject_id: "",
@@ -29,6 +32,29 @@ const ExamCreation = () => {
   const [subjects, setSubjects] = useState([]);
 
   useEffect(() => {
+    const fetchExam = async () => {
+      try {
+        const response = await axiosInstance.get(`/teachers/exams/${id}`);
+        const exam = response.data.exam;
+        setFormData({
+          test_name: exam.test_name,
+          subject_id: exam.subject.id,
+          subject_name: exam.subject.name,
+          teacher_id: exam.teacher_id,
+          time: exam.time,
+          examtype: exam.examtype,
+          Qtype1: exam.Qtype1,
+          Qtype2: exam.Qtype2,
+          Qtype3: exam.Qtype3,
+          Qnumber: exam.Qnumber,
+          start_time: dayjs(exam.start_time).format('YYYY-MM-DDTHH:mm'),
+        });
+        console.log("Exam data: ", exam);
+      } catch (error) {
+        console.log("Error fetching exam:", error);
+      }
+    };
+
     const fetchSubjects = async () => {
       try {
         const response = await axiosInstance.get('/teachers/subjects');
@@ -38,8 +64,9 @@ const ExamCreation = () => {
       }
     };
 
+    fetchExam();
     fetchSubjects();
-  }, []);
+  }, [id]);
 
   const handleSubmit = async () => {
     if (!formData.test_name.trim()) {
@@ -84,20 +111,20 @@ const ExamCreation = () => {
 
     const formattedStartTime = dayjs(formData.start_time).format('YYYY-MM-DD HH:mm:ss');
 
-
     try {
-      console.log("formData to create exam: ", { ...formData, start_time: formattedStartTime });
-      await axiosInstance.post(`/exams`, { ...formData, start_time: formattedStartTime });
+      console.log("formData to update exam: ", { ...formData, start_time: formattedStartTime });
+      await axiosInstance.patch(`/exams/${id}`, { ...formData, start_time: formattedStartTime });
       setNotification({
         isVisible: true,
-        message: "Tạo mới kỳ thi thành công!",
+        message: "Cập nhật kỳ thi thành công!",
         bgColor: "green",
         icon: <IoCheckmarkDone />,
       });
+      navigate(`/giangvien/chitietdethi/${id}`);
     } catch (error) {
       setNotification({
         isVisible: true,
-        message: "Có lỗi xảy ra khi tạo mới kỳ thi!",
+        message: "Có lỗi xảy ra khi cập nhật kỳ thi!",
         bgColor: "red",
         icon: <ShieldX />,
       });
@@ -149,6 +176,7 @@ const ExamCreation = () => {
               </div>
             </div>
             <select
+              disabled
               value={formData.subject_id}
               onChange={(e) => {
                 const selectedSubject = subjects.find(sub => sub.id === parseInt(e.target.value));
@@ -170,19 +198,27 @@ const ExamCreation = () => {
             <div className="flex items-center mb-4">
               <p className="font-semibold mr-2">Cấu trúc:</p>
               <select
+                disabled
                 value={formData.examtype}
-                onChange={(e) =>
+                onChange={(e) =>{
+                  const filteredExamTypes = formData.subject_id
+                    ? examStructures.filter(structure => structure.subject_id === parseInt(formData.subject_id))
+                    : [];
                   setFormData({ ...formData, examtype: e.target.value })
+                }
                 }
                 className="border border-gray-300 rounded px-2 py-1"
               >
-                <option value="NORMAL">NORMAL</option>
-                <option value="GENERAL">GENERAL</option>
+                  <option >
+                    {formData.examtype}
+                  </option>
+{/* ))} */}
               </select>
             </div>
             <div className="flex items-center mb-4">
               <p className="font-semibold mr-2">Số câu hỏi loại 1:</p>
               <input
+                disabled
                 type="number"
                 value={formData.Qtype1}
                 onChange={(e) =>
@@ -194,6 +230,7 @@ const ExamCreation = () => {
             <div className="flex items-center mb-4">
               <p className="font-semibold mr-2">Số câu hỏi loại 2:</p>
               <input
+                disabled
                 type="number"
                 value={formData.Qtype2}
                 onChange={(e) =>
@@ -205,6 +242,7 @@ const ExamCreation = () => {
             <div className="flex items-center mb-4">
               <p className="font-semibold mr-2">Số câu hỏi loại 3:</p>
               <input
+                disabled
                 type="number"
                 value={formData.Qtype3}
                 onChange={(e) =>
@@ -216,6 +254,7 @@ const ExamCreation = () => {
             <div className="flex items-center mb-4">
               <p className="font-semibold mr-2">Tổng số câu hỏi:</p>
               <input
+                disabled
                 type="number"
                 value={formData.Qnumber}
                 onChange={(e) =>
@@ -262,7 +301,7 @@ const ExamCreation = () => {
               className="ml-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
             >
               <div className="flex items-center justify-center">
-                Tạo mới
+                Cập nhật
                 <IoMdAdd size={24} className="ml-1 mb-0.5" />
               </div>
             </button>
@@ -273,4 +312,4 @@ const ExamCreation = () => {
   );
 };
 
-export default ExamCreation;
+export default ExamEdit;

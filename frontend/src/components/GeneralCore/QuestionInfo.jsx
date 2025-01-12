@@ -9,7 +9,7 @@ import {
 import { ShieldX } from "lucide-react";
 import DeleteModal from "../common/DeleteModal";
 import Notification from "../common/Notification";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const QuestionInfo = () => {
   const { id } = useParams();
@@ -30,8 +30,8 @@ const QuestionInfo = () => {
 
   const handleDeleteConfirm = async (questionId) => {
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/v1/questions/${questionId}`
+      await axiosInstance.delete(
+        `/questions/${questionId}`
       );
       setNotification({
         isVisible: true,
@@ -56,8 +56,8 @@ const QuestionInfo = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/v1/questions"
+        const response = await axiosInstance.get(
+          "/questions"
         );
         setQuestions(response.data);
       } catch (err) {

@@ -11,8 +11,8 @@ import { ShieldX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../common/DeleteModal";
 import Notification from "../common/Notification";
-import axios from "axios";
 import "../../assets/customCSS/LoadingEffect.css";
+import axiosInstance from "../../utils/axiosConfig";
 
 const QuestionBank = ({ searchQuery }) => {
   const [questions, setQuestions] = useState([]);
@@ -34,8 +34,8 @@ const QuestionBank = ({ searchQuery }) => {
   const fetchQuestions = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/v1/questions"
+      const response = await axiosInstance.get(
+        "/questions"
       );
       setQuestions(response.data);
       setFilteredQuestions(response.data);
@@ -108,8 +108,8 @@ const QuestionBank = ({ searchQuery }) => {
 
   const handleDeleteConfirm = async (questionId) => {
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/v1/questions/${questionId}`
+      await axiosInstance.delete(
+        `/questions/${questionId}`
       );
       await fetchQuestions();
       setNotification({

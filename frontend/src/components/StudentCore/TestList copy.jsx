@@ -13,15 +13,19 @@ const TestList = ({ searchQuery }) => {
   const typeRef = useRef(null);
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const fetchExamData = async () => {
       try {
+        let id = JSON.parse(localStorage.getItem("user")).id;
         const response = await axiosInstance.get(
-          `/students/exams`
+          `http://127.0.0.1:8000/api/v1/students/${id}/exams`
         );
         const exam = response.data.exams;
         console.log("Exam data:", exam);
         setData(exam);
+        // setTimeLeft(exam.time);
+        // setLoading(false);
       } catch (error) {
         console.error("Error fetching exam:", error);
         alert("Có lỗi xảy ra khi tải bài thi!");
@@ -30,6 +34,72 @@ const TestList = ({ searchQuery }) => {
 
     fetchExamData();
   }, []);
+
+  // const data = [
+  //   {
+  //     id: "00001",
+  //     test_name: "OOP Exam 1",
+  //     subject: "OOP",
+  //     create_at: "2023-11-01",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00002",
+  //     test_name: "OOP Exam 2",
+  //     subject: "OOP",
+  //     create_at: "2023-12-01",
+  //     type: "Thi riêng",
+  //   },
+  //   {
+  //     id: "00003",
+  //     test_name: "Data Structures Quiz",
+  //     subject: "Data Structures",
+  //     create_at: "2024-01-15",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00004",
+  //     test_name: "Algorithms Final",
+  //     subject: "Algorithms",
+  //     create_at: "2024-02-10",
+  //     type: "Thi riêng",
+  //   },
+  //   {
+  //     id: "00005",
+  //     test_name: "Database Midterm",
+  //     subject: "Databases",
+  //     create_at: "2023-09-20",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00006",
+  //     test_name: "Database Midterm",
+  //     subject: "Databases",
+  //     create_at: "2023-09-20",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00007",
+  //     test_name: "Data Structures Quiz",
+  //     subject: "Data Structures",
+  //     create_at: "2024-01-15",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00008",
+  //     test_name: "OOP Exam 3",
+  //     subject: "OOP",
+  //     create_at: "2024-01-15",
+  //     type: "Tập trung",
+  //   },
+  //   {
+  //     id: "00009",
+  //     test_name: "OOP Exam 4",
+  //     subject: "OOP",
+  //     create_at: "2024-01-22",
+  //     type: "Tập trung",
+  //   },
+  // ];
 
   const handleChangeFilter = (e) => {
     setFilterValue(e.target.value);
@@ -56,12 +126,12 @@ const TestList = ({ searchQuery }) => {
       const matchesSearch =
         !searchQuery ||
         item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.subject.name.toLowerCase().includes(searchQuery.toLowerCase());
+        item.subject.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesFilter =
         filterValue === "default" ||
         (filterValue === "monhoc" &&
-          item.subject.name
+          item.subject
             .toLowerCase()
             .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
         (filterValue === "lophoc" &&
@@ -69,7 +139,7 @@ const TestList = ({ searchQuery }) => {
             .toLowerCase()
             .includes(searchQuery ? searchQuery.toLowerCase() : "")) ||
         (filterValue === "ngaytao" &&
-          item.created_at.includes(searchQuery ? searchQuery : ""));
+          item.create_at.includes(searchQuery ? searchQuery : ""));
 
       const matchesType =
         typeValue === "default" ||
@@ -80,24 +150,18 @@ const TestList = ({ searchQuery }) => {
     })
     .sort((a, b) => {
       if (filterValue === "ngaytao") {
-        // Sort by created_at, latest first
-        return new Date(b.created_at) - new Date(a.created_at);
+        // Sort by create_at, latest first
+        return new Date(b.create_at) - new Date(a.create_at);
       } else if (filterValue === "monhoc" || filterValue === "lophoc") {
         // Sort by subject (for monhoc) or test_name (for lophoc)
-        // const field = filterValue === "monhoc" ? "subject.name" : "test_name";
-        // return a[field].localeCompare(b[field]);
-         // Sort by subject (for monhoc) or test_name (for lophoc)
-        const field = filterValue === "monhoc" ? "subject.name" : "test_name";
-        const aValue = field.split('.').reduce((o, i) => o[i], a);
-        const bValue = field.split('.').reduce((o, i) => o[i], b);
-        return aValue && bValue ? aValue.localeCompare(bValue) : 0;
-
+        const field = filterValue === "monhoc" ? "subject" : "test_name";
+        return a[field].localeCompare(b[field]);
       }
       return 0;
     });
 
   return (
-    <div className="w-full h-full max-w-6xl mx-auto bg-gray-100 lg:px-10 py-5 font-nunito">
+    <div className="w-full h-full max-w-4xl mx-auto bg-gray-100 px-10 py-5 font-nunito">
       <h1 className="text-2xl font-bold mb-4">
         Danh sách bài thi dành cho tôi
       </h1>
@@ -144,10 +208,8 @@ const TestList = ({ searchQuery }) => {
               <th className="px-4 py-2">ID</th>
               <th className="px-4 py-2">Tên bài thi</th>
               <th className="px-4 py-2">Môn học</th>
-              {/* <th className="px-4 py-2">Ngày tạo</th> */}
-              {/* <th className="px-4 py-2">Loại</th> */}
-              <th className="px-4 py-2">Thời gian bắt đầu</th>
-              <th className="px-4 py-2">Thời lượng (phút)</th>
+              <th className="px-4 py-2">Ngày tạo</th>
+              <th className="px-4 py-2">Loại</th>
               <th className="px-4 py-2 text-center">Thao tác</th>
             </tr>
           </thead>
@@ -156,53 +218,16 @@ const TestList = ({ searchQuery }) => {
               <tr key={item.id} className="border-b">
                 <td className="px-4 py-2 text-center">{item.id}</td>
                 <td className="px-4 py-2 text-center">{item.test_name}</td>
-                <td className="px-4 py-2 text-center">{item.subject.name}</td>
-                {/* <td className="px-4 py-2 text-center">{new Date(item.created_at).toLocaleDateString()}</td> */}
-                {/* <td className="px-4 py-2 text-center">{item.type}</td> */}
-                <td className="px-4 py-2 text-center">{new Date(item.start_time).toLocaleString()}</td>
-                <td className="px-4 py-2 text-center">{item.time}</td>
-                {/* <td className="px-4 py-2 text-center">
-                  <button
-                    className={`font-bold py-2 px-4 rounded-lg transition duration-300 ${
-                      item.status === 'Taken' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700 text-white'
-                    }`}
-                    onClick={() => goToCheck(item.id)}
-                    disabled={item.status === 'Taken'}
-                  >Làm bài</button>
-                </td> */}
+                <td className="px-4 py-2 text-center">{item.subject}</td>
+                <td className="px-4 py-2 text-center">{item.create_at}</td>
+                <td className="px-4 py-2 text-center">{item.type}</td>
                 <td className="px-4 py-2 text-center">
-                  {item.status === 'Not Started' && (
-                    <button
-                      className="font-bold py-2 px-4 rounded-lg bg-gray-400 cursor-not-allowed"
-                      disabled
-                    >
-                      Chưa bắt đầu
-                    </button>
-                  )}
-                  {item.status === 'Not Taken' && (
-                    <button
-                      className="font-bold py-2 px-4 rounded-lg bg-blue-500 hover:bg-blue-700 text-white transition duration-300"
-                      onClick={() => goToCheck(item.id)}
-                    >
-                      Làm bài
-                    </button>
-                  )}
-                  {item.status === 'Taken' && (
-                    <button
-                      className="font-bold py-2 px-4 rounded-lg bg-gray-400 cursor-not-allowed"
-                      disabled
-                    >
-                      Đã làm
-                    </button>
-                  )}
-                  {item.status === 'Expired' && (
-                    <button
-                      className="font-bold py-2 px-4 rounded-lg bg-red-500 cursor-not-allowed"
-                      disabled
-                    >
-                      Hết hạn
-                    </button>
-                  )}
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+                    onClick={() => goToCheck(item.id)}
+                  >
+                    Làm bài
+                  </button>
                 </td>
               </tr>
             ))}

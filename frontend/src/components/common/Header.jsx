@@ -82,9 +82,9 @@ const Header = ({
         </div>
         <div className="flex items-center">
           <div className="relative mr-4 cursor-pointer">
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+            {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
               2
-            </span>
+            </span> */}
             <svg
               className="w-6 h-6"
               fill="none"

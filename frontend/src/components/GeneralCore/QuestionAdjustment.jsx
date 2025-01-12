@@ -4,7 +4,7 @@ import { IoArrowBackOutline, IoCheckmarkDone } from "react-icons/io5";
 import { ShieldX } from "lucide-react";
 import Notification from "../common/Notification";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const QuestionAdjustment = () => {
   const initialData = useMemo(
@@ -35,8 +35,8 @@ const QuestionAdjustment = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/v1/questions"
+        const response = await axiosInstance.get(
+          "/questions"
         );
         setQuestions(response.data);
       } catch (err) {
@@ -110,7 +110,7 @@ const QuestionAdjustment = () => {
     }
 
     try {
-      await axios.put(`http://127.0.0.1:8000/api/v1/questions/${id}`, formData);
+      await axiosInstance.put(`/questions/${id}`, formData);
       setNotification({
         isVisible: true,
         message: "Cập nhật câu hỏi thành công!",
@@ -148,6 +148,7 @@ const QuestionAdjustment = () => {
               }
               className="border border-gray-300 rounded px-2 py-1 w-96 mb-3 font-semibold"
               placeholder="Nhập tên môn học"
+              disabled
             />
             <div className="flex items-center justify-between mb-4">
               <div>
